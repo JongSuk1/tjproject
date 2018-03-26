@@ -17,7 +17,3 @@ time.sleep(5.0)
 mixer.music.load('CAM_self.mp3')
 mixer.music.play()
 time.sleep(5.0)
-#for i in range (3):
-#    bang.play()
-#    print(i)
-#    time.sleep(2.0)
