@@ -26,7 +26,7 @@ def make_name():
     return folder, img_name
 
 
-class cameraThread(threading.Thread):
+class camThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame = None
