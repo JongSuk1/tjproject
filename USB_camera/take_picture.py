@@ -30,7 +30,7 @@ class camThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame = None
-        self.set = True
+        self.set = False
         self.period = 0
         
     def run(self):
@@ -47,6 +47,9 @@ class camThread(threading.Thread):
 
         capture.release()  
         cv2.destroyAllWindows() 
+
+    def turnon(self):
+        self.set = True
 
     def capture(self):
         folder, img_name = make_name()

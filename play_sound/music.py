@@ -1,6 +1,7 @@
 from pygame import mixer
 import time
-    
+import threading
+
 class soundThread(threading.Thread):
     def __init__(self, sound):
         threading.Thread.__init__(self)
