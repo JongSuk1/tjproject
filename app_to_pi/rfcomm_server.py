@@ -45,14 +45,9 @@ class btThread(threading.Thread):
             try:
                 rdata = clientSock.recv(1024)
                 self.state=True
-                if rdata == 'S':#start
-                    print(rdata)
-                    self.message = 'S'
-                elif rdata == 'C':#capture
-                    print(rdata)
-                    self.message = 'C'
-                elif rdata == 'Q':#quit
-                    self.message = 'Q'
+                print(rdata)
+                self.message = rdata
+
             except:
                 pass
 	self.serverSock.close()

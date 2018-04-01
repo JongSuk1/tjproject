@@ -3,6 +3,7 @@ import cv2
 import os
 import datetime
 import threading
+import time
 
 def store_img(folder, img_name, frame):
     if not os.path.isdir(folder):
@@ -30,20 +31,22 @@ class camThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame = None
-        self.set = False
+        self.set = True
         self.period = 0
         
     def run(self):
         capture = setup()
         period = 0
-        while(self.set):  
-            ret, self.frame = capture.read()  
-            cv2.imshow('webcam', self.frame )
-            
+        while(self.set):
+            ret, self.frame = capture.read()
+            print(ret)
+            cv2.imshow('webcam',self.frame )
+            time.sleep(0.1)
             self.period = self.period+1
             if self.period%120 == 0:
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
+            ret = False
 
         capture.release()  
         cv2.destroyAllWindows() 
