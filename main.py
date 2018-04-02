@@ -7,10 +7,12 @@ from USB_camera.take_picture import *
 from app_to_pi.rfcomm_server import *
 from play_sound.music import *
 
-def controller():
 
+def controller():
     camTh = camThread()
     btTh = btThread()
+    camTh.daemon = True
+    btTh.daemon = True
     btTh.start()
     while (True):
         print("1")
@@ -23,16 +25,17 @@ def controller():
                 camTh.turnon()
                 camTh.start()
             elif msg == 'C':
-                camTh.capture()
-                
+                camTh.capture()                
             elif msg == 'Q':
                 camTh.quit()
                 camTh.join()
                 camTh = camThread()
-            else: #msg == 'E'
-                camTh.quit()
-                camTh.join()
+                camTh.daemon = True
+            elif msg == 'E':
                 return
+            else:
+                pass
+# do nothing                
             btTh.downstate()
         time.sleep(1)
         
