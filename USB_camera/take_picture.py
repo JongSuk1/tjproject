@@ -13,8 +13,8 @@ def store_img(folder, img_name, frame):
 
 def setup():
     capture = cv2.VideoCapture(0)  
-    print 'image width %d' % capture.get(3)  
-    print 'image height %d' % capture.get(4)  
+    print ('image width %d' % capture.get(3)  )
+    print ('image height %d' % capture.get(4) ) 
       
     capture.set(3, 640)  
     capture.set(4, 480)  
@@ -40,7 +40,7 @@ class camThread(threading.Thread):
         while(self.set):
             ret, self.frame = capture.read()
             print(ret)
-            cv2.imshow('webcam',self.frame )
+#            cv2.imshow('webcam',self.frame )
             time.sleep(0.1)
             self.period = self.period+1
             if self.period%120 == 0:

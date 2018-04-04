@@ -2,7 +2,7 @@ import bluetooth
 import threading
 import serial
 import sys
-sys.path.insert(0, '/Users/kakao/tjproject/msgQueue')
+sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 import msgQueue
 
 class btThread(threading.Thread):
@@ -24,6 +24,7 @@ class btThread(threading.Thread):
 
     def isConnected(self):
         return self.Connected
+    
 
     def getMessage(self):
         return self.message
@@ -36,8 +37,9 @@ class btThread(threading.Thread):
         rdata = 'N' # 'N' for None and is default
         while rdata != 'E':#'E' for exit
             try:
-                rdata = clientSock.recv(1024)
-                msgQ.putMsg(rdata)
+                rdata = clientSock.recv(1024).decode("utf-8")
+                print(rdata)
+                msgQueue.putMsg(rdata)
                 print("got message %s" %rdata)
 
             except:
