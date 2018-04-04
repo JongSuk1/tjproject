@@ -21,18 +21,24 @@ def controller():
             if msg == 'N':
                 pass
             elif msg == 'BTconnected':
+                soundTh=soundThread('BLE_con.mp3')
+                soundTh.start()
                 print("bluetooth connetion successful")
             elif msg == 'S':
                 camTh.turnon()
                 camTh.start()
             elif msg == 'C':
                 print("C pressed\n")
+                soundTh=soundThread('shutter.mp3')
+                soundTh.start()
                 camTh.capture()                
             elif msg == 'Q':
                 camTh.quit()
                 camTh.join()
                 camTh = camThread()
             elif msg == 'E':
+                soundTh=soundThread('BLE_uncon.mp3')
+                soundTh.start()
                 print("bluetooth connection finished")
 #                camTh.quit()
 #                camTh.join()
