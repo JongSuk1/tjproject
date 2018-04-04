@@ -8,7 +8,7 @@ import msgQueue
 class btThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.address = "B8:27:EB:9E:6F:5E"
+        self.address = "B8:27:EB:E6:9F:B8"
         self.port = 1
         self.Connected = False
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
