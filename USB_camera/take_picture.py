@@ -61,5 +61,8 @@ class camThread(threading.Thread):
     def quit(self):
         self.set = False
 
+    def is_running(self):
+        return self.set
+
 
         

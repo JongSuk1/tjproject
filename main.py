@@ -10,7 +10,6 @@ import sys
 sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 import msgQueue
 def controller():
-    camTh = camThread()
     btTh = btThread()
     btTh.start()
     msg = 'N'
@@ -25,6 +24,7 @@ def controller():
                 soundTh.start()
                 print("bluetooth connetion successful")
             elif msg == 'S':
+                camTh = camThread()
                 camTh.turnon()
                 camTh.start()
             elif msg == 'C':
@@ -35,13 +35,13 @@ def controller():
             elif msg == 'Q':
                 camTh.quit()
                 camTh.join()
-                camTh = camThread()
             elif msg == 'E':
                 soundTh=soundThread('BLE_uncon.mp3')
                 soundTh.start()
                 print("bluetooth connection finished")
-#                camTh.quit()
-#                camTh.join()
+                if camTh.is_running()               
+                    camTh.quit()
+                    camTh.join()
                 break
             else:
                 print("msg is %s" %msg)
