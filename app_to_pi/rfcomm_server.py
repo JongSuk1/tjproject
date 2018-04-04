@@ -34,6 +34,7 @@ class btThread(threading.Thread):
         self.serverSock.listen(1)
         clientSock, clientInfo = self.serverSock.accept()
         self.Connected = True
+        msgQueue.putMsg("BTconnected")
         rdata = 'N' # 'N' for None and is default
         while rdata != 'E':#'E' for exit
             try:
@@ -47,7 +48,7 @@ class btThread(threading.Thread):
                 break
         self.serverSock.close()
         self.Connected = False
-        print("btThread finished")
+        msgQueue.putMsg("BTdisconnected")
 
 
 

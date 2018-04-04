@@ -14,12 +14,14 @@ def controller():
     btTh = btThread()
     btTh.start()
     msg = 'N'
-    while (msg != 'X'):
+    while (True):
         print("1")
         if not msgQueue.isEmpty():
             msg = msgQueue.getMsg()
             if msg == 'N':
                 pass
+            elif msg == 'BTconnected':
+                print("bluetooth connetion successful")
             elif msg == 'S':
                 camTh.turnon()
                 camTh.start()
@@ -31,6 +33,9 @@ def controller():
                 camTh.join()
                 camTh = camThread()
             elif msg == 'E':
+                print("bluetooth connection finished")
+#                camTh.quit()
+#                camTh.join()
                 break
             else:
                 print("msg is %s" %msg)
