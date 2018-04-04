@@ -6,37 +6,35 @@ import time
 from USB_camera.take_picture import *
 from app_to_pi.rfcomm_server import *
 from play_sound.music import *
-
+import sys
+sys.path.insert(0, '/Users/kakao/tjproject/msgQueue')
+import msgQueue
 
 def controller():
-    camTh = camThread()
-    btTh = btThread()
-    camTh.daemon = True
-    btTh.daemon = True
-    btTh.start()
+    msgQ = msgQueue.msgQ()
+    camThread = camThread()
+    btThread = btThread()
+    btThread.start()
     while (True):
         print("1")
         
-        if (btTh.upstate()):
-            msg = btTh.getMessage()
+        if not msgQ.isEmpty():
+            msg = msgQ.getMsg()
             if msg == 'N':
                 pass
             elif msg == 'S':
-                camTh.turnon()
-                camTh.start()
+                camThread.turnon()
+                camThread.start()
             elif msg == 'C':
-                camTh.capture()                
+                camThread.capture()                
             elif msg == 'Q':
-                camTh.quit()
-                camTh.join()
-                camTh = camThread()
-                camTh.daemon = True
+                camThread.quit()
+                camThread.join()
+                camThread = camThread()
             elif msg == 'E':
-                return
+                break
             else:
                 pass
-# do nothing                
-            btTh.downstate()
         time.sleep(1)
         
         
