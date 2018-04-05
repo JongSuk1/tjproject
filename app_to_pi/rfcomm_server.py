@@ -3,7 +3,9 @@ import threading
 import serial
 import sys
 sys.path.insert(0, '/home/pi/tjproject/msgQueue')
+sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
+from constants import *
 
 class btThread(threading.Thread):
     def __init__(self):
@@ -35,10 +37,10 @@ class btThread(threading.Thread):
         clientSock, clientInfo = self.serverSock.accept()
         self.Connected = True
         msgQueue.putMsg("BTconnected")
-        rdata = 'N' # 'N' for None and is default
-        while rdata != 'E':#'E' for exit
+        rdata = None # 'N' for None and is default
+        while rdata != BT_OFF :# BT_OFF for disconnecting bluetooth
             try:
-                rdata = clientSock.recv(1024).decode("utf-8")
+                rdata = clientSock.recv(1024).decode("utf-8") # convert b_string to string
                 print(rdata)
                 msgQueue.putMsg(rdata)
                 print("got message %s" %rdata)
@@ -48,7 +50,7 @@ class btThread(threading.Thread):
                 break
         self.serverSock.close()
         self.Connected = False
-        msgQueue.putMsg("BTdisconnected")
+        msgQueue.putMsg(BT_OFF)
 
 
 

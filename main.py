@@ -7,35 +7,34 @@ from USB_camera.take_picture import *
 from app_to_pi.rfcomm_server import *
 from play_sound.music import *
 import sys
-sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 import msgQueue
+from constants import *
+
+
 def controller():
     btTh = btThread()
     btTh.start()
-    msg = 'N'
     while (True):
         print("1")
         if not msgQueue.isEmpty():
             msg = msgQueue.getMsg()
-            if msg == 'N':
-                pass
-            elif msg == 'BTconnected':
+            elif msg == BT_ON:
                 soundTh=soundThread('BLE_con.mp3')
                 soundTh.start()
                 print("bluetooth connetion successful")
-            elif msg == 'S':
+            elif msg == CAM_ON:
                 camTh = camThread()
                 camTh.turnon()
                 camTh.start()
-            elif msg == 'C':
+            elif msg == CAM_CAPTURE:
                 print("C pressed\n")
                 soundTh=soundThread('shutter.mp3')
                 soundTh.start()
                 camTh.capture()                
-            elif msg == 'Q':
+            elif msg == CAM_QUIT:
                 camTh.quit()
                 camTh.join()
-            elif msg == 'E':
+            elif msg == BT_OFF:
                 soundTh=soundThread('BLE_uncon.mp3')
                 soundTh.start()
                 print("bluetooth connection finished")
