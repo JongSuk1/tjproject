@@ -20,6 +20,11 @@ def setup():
     capture.set(4, 480)  
     return capture
 
+def capture():
+    cap = cv2.VideoCapture(0)
+    ret, frame = cap.read()
+    folder, img_name = make_name()
+    store_img("myimage", img_name, frame)
 
 def make_name():
     img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
@@ -32,37 +37,37 @@ class camThread(threading.Thread):
         threading.Thread.__init__(self)
         self.frame = None
         self.set = True
-        self.period = 0
+        self.clock = 0
         
     def run(self):
         capture = setup()
-        period = 0
         while(self.set):
             ret, self.frame = capture.read()
-            print(ret)
-#            cv2.imshow('webcam',self.frame )
             time.sleep(0.1)
-            self.period = self.period+1
-            if self.period%120 == 0:
+            self.clock = self.clock+1
+            if self.clock%60 == 0:
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
-            ret = False
 
         capture.release()  
         cv2.destroyAllWindows() 
-
+        print('camera closed')
+        
     def turnon(self):
         self.set = True
 
     def capture(self):
         folder, img_name = make_name()
-        store_img("myimage", img_name, self.frame)
+        store_img("myimage", img_name, self.frame)   
        
     def quit(self):
         self.set = False
 
     def is_running(self):
         return self.set
+    
+    def set_period(self,period):
+        pass
 
 
         

@@ -14,39 +14,51 @@ from constants import *
 def controller():
     btTh = btThread()
     btTh.start()
+    camCheck = False
+    msg = None
     while (True):
         print("1")
         if not msgQueue.isEmpty():
             msg = msgQueue.getMsg()
+
+            if msg == None:
+                pass
             elif msg == BT_ON:
                 soundTh=soundThread('BLE_con.mp3')
                 soundTh.start()
                 print("bluetooth connetion successful")
             elif msg == CAM_ON:
+                global camTh
                 camTh = camThread()
                 camTh.turnon()
                 camTh.start()
+                camCheck = True
             elif msg == CAM_CAPTURE:
                 print("C pressed\n")
                 soundTh=soundThread('shutter.mp3')
                 soundTh.start()
-                camTh.capture()                
+                if camCheck:
+                    camTh.capture()
+                else:
+                    capture()
             elif msg == CAM_QUIT:
                 camTh.quit()
                 camTh.join()
+                camCheck = False
             elif msg == BT_OFF:
                 soundTh=soundThread('BLE_uncon.mp3')
                 soundTh.start()
                 print("bluetooth connection finished")
-                if camTh.is_running()               
+                if camTh.is_running():
                     camTh.quit()
                     camTh.join()
+                soundTh.join()
                 break
+
             else:
                 print("msg is %s" %msg)
-        time.sleep(1)
 
-        
+        time.sleep(1)
         
 if __name__ == '__main__':
 
