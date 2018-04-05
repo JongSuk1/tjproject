@@ -12,6 +12,7 @@ import msgQueue
 def controller():
     btTh = btThread()
     btTh.start()
+    camCheck = False
     msg = 'N'
     while (True):
         print("1")
@@ -19,32 +20,46 @@ def controller():
             msg = msgQueue.getMsg()
             if msg == 'N':
                 pass
+            
             elif msg == 'BTconnected':
                 soundTh=soundThread('BLE_con.mp3')
                 soundTh.start()
                 print("bluetooth connetion successful")
+                
             elif msg == 'S':
+                global camTh
                 camTh = camThread()
                 camTh.turnon()
                 camTh.start()
+                camCheck = True
+                
             elif msg == 'C':
                 print("C pressed\n")
                 soundTh=soundThread('shutter.mp3')
                 soundTh.start()
-                camTh.capture()                
+                if camCheck:
+                    camTh.capture()
+                else:
+                    capture()
+                    
             elif msg == 'Q':
                 camTh.quit()
                 camTh.join()
+                camCheck = False
+                
             elif msg == 'E':
                 soundTh=soundThread('BLE_uncon.mp3')
                 soundTh.start()
                 print("bluetooth connection finished")
-                if camTh.is_running()               
+                if camTh.is_running():
                     camTh.quit()
                     camTh.join()
+                soundTh.join()
                 break
+            
             else:
                 print("msg is %s" %msg)
+                
         time.sleep(1)
 
         
