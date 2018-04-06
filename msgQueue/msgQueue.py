@@ -10,8 +10,9 @@ def putMsg(Msg):
 def getMsg():
     if not msgQ.empty():
         msg =  msgQ.get()
-        print("%s has popped from msgQ\n" %(msg))
-        return msg
+        msgList = msg.split('\t')
+        print("%s has popped from msgQ\n" %(msgList[0]))
+        return msgList
     else:
         print("msgQ is empty")
         return None

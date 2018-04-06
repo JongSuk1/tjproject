@@ -19,7 +19,7 @@ def controller():
     while (True):
         print("1")
         if not msgQueue.isEmpty():
-            msg = msgQueue.getMsg()
+            msg, value = msgQueue.getMsg()
 
             if msg == None:
                 pass
@@ -41,6 +41,9 @@ def controller():
                     camTh.capture()
                 else:
                     capture()
+            elif msg == CAM_PERIOD:
+                print(value)
+
             elif msg == CAM_QUIT:
                 camTh.quit()
                 camTh.join()
@@ -54,6 +57,7 @@ def controller():
                     camTh.join()
                 soundTh.join()
                 break
+
 
             else:
                 print("msg is %s" %msg)
