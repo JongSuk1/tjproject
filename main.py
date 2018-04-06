@@ -42,7 +42,7 @@ def controller():
                 else:
                     capture()
             elif msg == CAM_PERIOD:
-                print(value)
+                camTh.set_period(value)
 
             elif msg == CAM_QUIT:
                 camTh.quit()
