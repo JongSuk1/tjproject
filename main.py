@@ -4,6 +4,7 @@ import os
 import datetime
 import time
 from USB_camera.take_picture import *
+from USB_camera.take_video import *
 from app_to_pi.rfcomm_server import *
 from play_sound.music import *
 import sys
@@ -16,42 +17,64 @@ def controller():
     btTh.start()
     camCheck = False
     msg = None
+    thList = []
     while (True):
         print("1")
         if not msgQueue.isEmpty():
             msg = msgQueue.getMsg()
-
             if msg == None:
                 pass
+            
             elif msg == BT_ON:
                 soundTh=soundThread('BLE_con.mp3')
                 soundTh.start()
                 print("bluetooth connetion successful")
+                
             elif msg == CAM_ON:
                 global camTh
                 camTh = camThread()
-                camTh.turnon()
                 camTh.start()
+                thList.append(camTh)
                 camCheck = True
+                
             elif msg == CAM_CAPTURE:
-                print("C pressed\n")
                 soundTh=soundThread('shutter.mp3')
                 soundTh.start()
                 if camCheck:
                     camTh.capture()
                 else:
                     capture()
+                    
             elif msg == CAM_QUIT:
                 camTh.quit()
                 camTh.join()
                 camCheck = False
+                
+            elif msg == TIMELAPSE_ON:
+                soundTh = soundThread('video_start.mp3')
+                soundTh.start()
+                if camCheck == True:
+                    camTh.quit()
+                    camTh.join()
+                videoTh = videoThread()
+                videoTh.start()
+                thList.append(videoTh)
+                
+            elif msg == TIMELAPSE_OFF:
+                videoTh.quit()
+                videoTh.join()
+                if camCheck == True:
+                    camTh = camThread()
+                    camTh.start()
+
+
             elif msg == BT_OFF:
                 soundTh=soundThread('BLE_uncon.mp3')
                 soundTh.start()
                 print("bluetooth connection finished")
-                if camTh.is_running():
-                    camTh.quit()
-                    camTh.join()
+                for thread in thList:
+                    thread.quit()
+                    thread.join()
                 soundTh.join()
                 break
 
