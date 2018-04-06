@@ -4,13 +4,15 @@ import serial
 import sys
 import subprocess
 import re
+import os
 sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
 from constants import *
 
 def get_baddr():
-    subprocess.call('hciconfig > hciconfig.txt', shell=True)
+    if not os.path.exists('hciconfig.txt'):
+        subprocess.call('hciconfig > hciconfig.txt', shell=True)
     hciInfo = open('hciconfig.txt','r').read()
     regex = re.compile("..:..:..:..:..:..")
     baddr = regex.search(hciInfo).group()
