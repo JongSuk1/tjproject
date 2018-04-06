@@ -21,7 +21,8 @@ def controller():
     while (True):
         print("1")
         if not msgQueue.isEmpty():
-            msg = msgQueue.getMsg()
+            msg, value = msgQueue.getMsg()
+
             if msg == None:
                 pass
             
@@ -44,7 +45,10 @@ def controller():
                     camTh.capture()
                 else:
                     capture()
-                    
+
+            elif msg == CAM_PERIOD:
+                camTh.set_period(value)
+
             elif msg == CAM_QUIT:
                 camTh.quit()
                 camTh.join()
