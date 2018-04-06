@@ -16,8 +16,8 @@ def setup():
     print ('image width %d' % capture.get(3)  )
     print ('image height %d' % capture.get(4) ) 
       
-    capture.set(3, 640)  
-    capture.set(4, 480)  
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     return capture
 
 def capture():
@@ -38,14 +38,14 @@ class camThread(threading.Thread):
         self.frame = None
         self.set = True
         self.clock = 0
-        
+
     def run(self):
         capture = setup()
         while(self.set):
             ret, self.frame = capture.read()
             time.sleep(0.1)
             self.clock = self.clock+1
-            if self.clock%60 == 0:
+            if self.clock % self.period == 0:
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
 
@@ -58,7 +58,7 @@ class camThread(threading.Thread):
 
     def capture(self):
         folder, img_name = make_name()
-        store_img("myimage", img_name, self.frame)   
+        store_img("myimage", img_name, self.frame)
        
     def quit(self):
         self.set = False
@@ -67,7 +67,8 @@ class camThread(threading.Thread):
         return self.set
     
     def set_period(self,period):
-        pass
+        self.period = period
+        self.clock = 0
 
 
         
