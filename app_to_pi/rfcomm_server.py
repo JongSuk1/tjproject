@@ -52,7 +52,6 @@ class btThread(threading.Thread):
         while rdata != BT_OFF :# BT_OFF for disconnecting bluetooth
             try:
                 rdata = clientSock.recv(1024).decode("utf-8") # convert b_string to string
-                print(rdata)
                 msgQueue.putMsg(rdata)
                 print("got message %s" %rdata)
 

@@ -38,6 +38,7 @@ class camThread(threading.Thread):
         self.frame = None
         self.set = True
         self.clock = 0
+        self.period = 50
 
     def run(self):
         capture = setup()
@@ -67,7 +68,7 @@ class camThread(threading.Thread):
         return self.set
     
     def set_period(self,period):
-        self.period = period
+        self.period = int(period) * 10
         self.clock = 0
 
 

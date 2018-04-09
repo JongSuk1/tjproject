@@ -32,7 +32,7 @@ class videoThread(threading.Thread):
         capture, out = setup()
         while (self.set):
             ret, self.frame = capture.read()
-            frame = cv2.flip(self.frame,0)
+            frame = cv2.flip(self.frame,1)
             out.write(frame)
         capture.release()
         out.release()
