@@ -21,10 +21,12 @@ def controller():
     while (True):
         print("1")
         if not msgQueue.isEmpty():
-            msg, value = msgQueue.getMsg()
-
+            msgList = msgQueue.getMsg()
+            msg = msgList[0]
+            value = msgList[1]
+            print(msgList)
             if msg == None:
-                pass
+                pass  #raise error
             
             elif msg == BT_ON:
                 soundTh=soundThread('BLE_con.mp3')

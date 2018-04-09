@@ -1,6 +1,6 @@
 # message constants
 
-BT_ON = '0' 
+BT_ON = '0'
 BT_OFF = '1'
 CAM_ON = '2'
 CAM_QUIT = '3'
