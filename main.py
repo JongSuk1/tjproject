@@ -21,10 +21,10 @@ def controller():
     while (True):
         print("1")
         if not msgQueue.isEmpty():
-            msgList = msgQueue.getMsg()
-            msg = msgList[0]
-            value = msgList[1]
-            print(msgList)
+            msgDict = msgQueue.getMsg()
+            msg = msgDict["msg"]
+            value = msgDict['value']
+
             if msg == None:
                 pass  #raise error
             
