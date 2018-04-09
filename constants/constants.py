@@ -1,5 +1,6 @@
 # message constants
 
+NOTHING = '-1'
 BT_ON = '0'
 BT_OFF = '1'
 CAM_ON = '2'

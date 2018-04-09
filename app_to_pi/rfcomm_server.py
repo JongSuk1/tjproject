@@ -47,7 +47,8 @@ class btThread(threading.Thread):
         self.serverSock.listen(1)
         clientSock, clientInfo = self.serverSock.accept()
         self.Connected = True
-        msgQueue.putMsg(BT_ON)
+        connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(BT_ON, NOTHING)
+        msgQueue.putMsg(connectedMsg)
         rdata = None # 'N' for None and is default
         while rdata != BT_OFF :# BT_OFF for disconnecting bluetooth
             try:
@@ -60,7 +61,9 @@ class btThread(threading.Thread):
                 break
         self.serverSock.close()
         self.Connected = False
-        msgQueue.putMsg(BT_OFF)
+
+        disconnectedMsg =  '{"msg" : "%s", "value" : "%s"}' %(BT_OFF, NOTHING)
+        msgQueue.putMsg(disconnectedMsg)
 
 
 
