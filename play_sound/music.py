@@ -12,4 +12,9 @@ class soundThread(threading.Thread):
         mixer.music.load('music/'+self.sound)
         mixer.music.play()
         while mixer.music.get_busy():
-            pass
+            time.sleep(0.1)
+
+def play(sound):
+    soundTh = soundThread(sound)
+    soundTh.start()
+    return soundTh

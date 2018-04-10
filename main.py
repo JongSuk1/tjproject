@@ -8,7 +8,7 @@ from USB_camera.take_video import *
 from app_to_pi.rfcomm_server import *
 import sys
 import msgQueue
-import play_sound as music
+import play_sound.music as music
 from constants import *
 
 
@@ -24,10 +24,12 @@ def close_Thread(thr,thList):
 
 def controller():
     global camTh
+    global videoTh
     btTh = btThread()
     btTh.start()
     camTh = camThread()
-    # camCheck = False
+    videoTh = videoThread()
+    camCheck = False
     msg = None
 
     thList = []
@@ -35,12 +37,12 @@ def controller():
     while (True):
         print("1")
         if not msgQueue.isEmpty():
-            msgList = msgQueue.getMsg()
-            msg = msgList[0]
-            print(msgList)
+            msgDict = msgQueue.getMsg()
+            msg = msgDict["msg"]
+            value = msgDict['value']
             
             if msg == BT_ON:
-                music.play_music('BLE_con.mp3')
+                music.play('BLE_con.mp3')
                 print("bluetooth connetion successful")
                 
             elif msg == CAM_ON:
@@ -50,13 +52,20 @@ def controller():
                 camCheck = True
                 
             elif msg == CAM_CAPTURE:
-                music.play_music('shutter.mp3')
-                if camCheck:
+                music.play('shutter.mp3')
+                if camTh.is_running():
                     camTh.capture()
+                elif videoTh.is_running():
+                    videoTh.capture()
                 else:
                     capture()
 
             elif msg == CAM_PERIOD:
+                if videoTh.is_running():
+                    print('cannot control period while timelapse on')
+                if not camTh.is_running():
+                    print('cannot control period without camThread')
+
                 camTh.set_period(value)
 
             elif msg == CAM_QUIT:
@@ -64,8 +73,8 @@ def controller():
                 camCheck = False
                 
             elif msg == TIMELAPSE_ON:
-                music.play_music('video_start.mp3')
-                if camCheck == True:
+                music.play('video_start.mp3')
+                if camTh.is_running():
                     close_Thread(camTh,thList)
                 videoTh = videoThread()
                 videoTh.start()
@@ -76,22 +85,22 @@ def controller():
                 if camCheck == True:
                     camTh = camThread()
                     camTh.start()
+                    thList.append(camTh)
 
 
             elif msg == BT_OFF:
-                music.play_music('BLE_uncon.mp3')
-                print("bluetooth connection finished")
-                for thread in thList:
-                    close_Thread(thread,thList)
-                soundTh.join()
                 break
-
             else:
                 # raise error and logging
                 print("Unknown message %s is coming" % msg)
 
         time.sleep(1)
-        
+
+    soundTh = music.play('BLE_uncon.mp3')
+    for thread in thList:
+        close_Thread(thread, thList)
+    soundTh.join()
+
 if __name__ == '__main__':
 
     controller()

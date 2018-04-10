@@ -36,29 +36,29 @@ class camThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame = None
-        self.set = True
+        self.set = False
         self.clock = 0
         self.period = 50
+        self.cap = None
 
     def run(self):
-        capture = setup()
+        self.set = True
+        self.cap = setup()
         while(self.set):
-            ret, self.frame = capture.read()
+            ret, self.frame = self.cap.read()
             time.sleep(0.1)
             self.clock = self.clock+1
             if self.clock % self.period == 0:
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
 
-        capture.release()  
+        self.cap.release()
         cv2.destroyAllWindows() 
         print('camera closed')
-        
-    def turnon(self):
-        self.set = True
 
     def capture(self):
         folder, img_name = make_name()
+        ret, self.frame = self.cap.read()
         store_img("myimage", img_name, self.frame)
        
     def quit(self):

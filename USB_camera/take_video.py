@@ -21,14 +21,20 @@ def make_name():
     folder = 'myvideo'
     return folder, video_name
 
+def store_img(folder, img_name, frame):
+    if not os.path.isdir(folder):
+       os.mkdir(folder)
+    cv2.imwrite(folder+'/'+img_name, frame)
+
 
 class videoThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame = None
-        self.set = True
+        self.set = False
 
     def run(self):
+        self.set = True
         capture, out = setup()
         while (self.set):
             ret, self.frame = capture.read()
@@ -38,8 +44,9 @@ class videoThread(threading.Thread):
         out.release()
         cv2.destroyAllWindows()
 
-    def turnon(self):
-        self.set = True
+    def capture(self):
+        img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
+        store_img("myimage", img_name, self.frame)
 
     def quit(self):
         self.set = False

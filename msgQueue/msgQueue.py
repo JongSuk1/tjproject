@@ -10,9 +10,7 @@ def putMsg(Msg):
 def getMsg():
     if not msgQ.empty():                                                                                                                                  
         msg =  msgQ.get()
-        print(msg)
         msgDict = json.loads(msg)
-        print("%s has popped from msgQ\n" %(msgDict["msg"]))
         return msgDict
     else:
         print("msgQ is empty")

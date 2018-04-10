@@ -47,10 +47,12 @@ class btThread(threading.Thread):
         self.serverSock.listen(1)
         clientSock, clientInfo = self.serverSock.accept()
         self.Connected = True
+
         connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(BT_ON, NOTHING)
         msgQueue.putMsg(connectedMsg)
-        rdata = None # 'N' for None and is default
-        while rdata != BT_OFF :# BT_OFF for disconnecting bluetooth
+        rdata = None
+
+        while rdata != BT_OFF :
             try:
                 rdata = clientSock.recv(1024).decode("utf-8") # convert b_string to string
                 msgQueue.putMsg(rdata)
@@ -59,6 +61,7 @@ class btThread(threading.Thread):
             except:
                 print("cannot receive data")
                 break
+
         self.serverSock.close()
         self.Connected = False
 
