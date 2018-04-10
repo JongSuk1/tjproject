@@ -9,6 +9,9 @@ sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
 from constants import *
+import logging
+
+logger = logging.getLogger()
 
 def get_baddr():
     if not os.path.exists('hciconfig.txt'):
@@ -56,10 +59,9 @@ class btThread(threading.Thread):
             try:
                 rdata = clientSock.recv(1024).decode("utf-8") # convert b_string to string
                 msgQueue.putMsg(rdata)
-                print("got message %s" %rdata)
-
+                logging.info("got message %s"%rdata)
             except:
-                print("cannot receive data")
+                logging.warning("cannot receive data")
                 break
 
         self.serverSock.close()

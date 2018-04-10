@@ -10,6 +10,23 @@ import sys
 import msgQueue
 import play_sound.music as music
 from constants import *
+import logging
+import logging.handlers
+
+logger = logging.getLogger()
+
+def set_log():
+    fomatter = logging.Formatter('[%(levelname)s|%(filename)s:%(lineno)s] %(message)s')
+
+    fileHandler = logging.FileHandler('tjproject.log')
+    streamHandler = logging.StreamHandler()
+
+    fileHandler.setFormatter(fomatter)
+    streamHandler.setFormatter(fomatter)
+
+    logger.addHandler(fileHandler)
+    logger.addHandler(streamHandler)
+    logger.setLevel(logging.INFO)
 
 
 def close_Thread(thr,thList):
@@ -18,8 +35,7 @@ def close_Thread(thr,thList):
         thr.quit()
         thr.join()
     except:
-        print('thread is not in threadlist')
-
+        logger.error('thread is not in threadlist')
 
 
 def controller():
@@ -35,7 +51,7 @@ def controller():
     thList = []
 
     while (True):
-        print("1")
+        logger.debug('1')
         if not msgQueue.isEmpty():
             msgDict = msgQueue.getMsg()
             msg = msgDict["msg"]
@@ -43,7 +59,7 @@ def controller():
             
             if msg == BT_ON:
                 music.play('BLE_con.mp3')
-                print("bluetooth connetion successful")
+                logger.info("bluetooth connetion successful")
                 
             elif msg == CAM_ON:
                 camTh = camThread()
@@ -62,9 +78,9 @@ def controller():
 
             elif msg == CAM_PERIOD:
                 if videoTh.is_running():
-                    print('cannot control period while timelapse on')
+                    logger.error('cannot control period while timelapse on')
                 if not camTh.is_running():
-                    print('cannot control period without camThread')
+                    logger.error('cannot control period without camThread')
 
                 camTh.set_period(value)
 
@@ -87,12 +103,12 @@ def controller():
                     camTh.start()
                     thList.append(camTh)
 
-
             elif msg == BT_OFF:
                 break
+
             else:
                 # raise error and logging
-                print("Unknown message %s is coming" % msg)
+                logger.error("Unknown message %s is coming" % msg)
 
         time.sleep(1)
 
@@ -102,6 +118,6 @@ def controller():
     soundTh.join()
 
 if __name__ == '__main__':
-
+    set_log()
     controller()
-    print('exit')
+    logger.info('exit\n')

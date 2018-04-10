@@ -1,8 +1,9 @@
 import queue
 import json   
-
+import logging
 
 msgQ = queue.Queue()
+logger = logging.getLogger()
 
 def putMsg(Msg):
     msgQ.put(Msg)
@@ -13,7 +14,7 @@ def getMsg():
         msgDict = json.loads(msg)
         return msgDict
     else:
-        print("msgQ is empty")
+        logger.info("msgQ is empty")
         return None
 
 def isEmpty():

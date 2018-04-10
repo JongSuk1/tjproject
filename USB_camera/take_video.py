@@ -4,6 +4,9 @@ import os
 import datetime
 import threading
 import time
+import logging
+
+logger = logging.getLogger()
 
 def setup():
     capture = cv2.VideoCapture(0)

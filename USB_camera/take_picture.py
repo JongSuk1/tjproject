@@ -4,6 +4,9 @@ import os
 import datetime
 import threading
 import time
+import logging
+
+logger = logging.getLogger()
 
 def store_img(folder, img_name, frame):
     if not os.path.isdir(folder):
@@ -12,9 +15,9 @@ def store_img(folder, img_name, frame):
 
 
 def setup():
-    capture = cv2.VideoCapture(0)  
-    print ('image width %d' % capture.get(3)  )
-    print ('image height %d' % capture.get(4) ) 
+    capture = cv2.VideoCapture(0)
+    logging.info('image width %d' % capture.get(3)  )
+    logging.info('image height %d' % capture.get(4) )
       
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -54,7 +57,7 @@ class camThread(threading.Thread):
 
         self.cap.release()
         cv2.destroyAllWindows() 
-        print('camera closed')
+        logging.info('camera closed')
 
     def capture(self):
         folder, img_name = make_name()
