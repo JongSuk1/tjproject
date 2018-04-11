@@ -9,3 +9,8 @@ CAM_CAPTURE = '4'
 TIMELAPSE_ON = '5'
 TIMELAPSE_OFF = '6'
 CAM_PERIOD = '7'
+LD_IMAGE = '8'
+
+
+# path constants
+CAPTURED_IMAGE_PATH = r'/home/pi/tjproject/myimage'

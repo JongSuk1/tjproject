@@ -106,9 +106,19 @@ def controller():
             elif msg == BT_OFF:
                 break
 
+            elif msg == LD_IMAGE: #do something
+                if btTh.isConnected() :
+                    if not btTh.startLoadingImage() :
+                        logger.error('loading images failed')
+                        break
+                else :
+                    logger.error('bluetooth is not connected')
+                    break
+
             else:
                 # raise error and logging
                 logger.error("Unknown message %s is coming" % msg)
+                break
 
         time.sleep(1)
 

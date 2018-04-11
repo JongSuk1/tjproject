@@ -9,6 +9,7 @@ sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
 from constants import *
+import cv2
 import logging
 
 logger = logging.getLogger()
@@ -28,6 +29,7 @@ class btThread(threading.Thread):
         self.port = 1
         self.Connected = False
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        self.clientSock = None
 
     def __del__(self):
         self.serverSock.close()
@@ -45,10 +47,31 @@ class btThread(threading.Thread):
     def getMessage(self):
         return self.message
 
+    def startLoadingImage(self):
+        if not self.isConnected():
+            logger.error('bt is not connected')
+            return False
+        if not os.path.isdir(CAPTURED_IMAGE_PATH):
+            logger.error('cannot find \'myimage\' folder')
+            return False
+        
+        capturedImageList = os.listdir(CAPTURED_IMAGE_PATH)
+        capturedImageList.sort()
+
+        for images in capturedImageList:
+            img = cv2.imread(images, cv2.IMREAD_COLOR)
+# resize
+            cv2.resize(img, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
+            b = cv2.imencode('.jpg', img).tostring()
+            self.clientSock.send(b)
+            logger.info('%s was sent' % images)
+        return True
+        
+
     def run(self):
         self.serverSock.bind((self.address, self.port))
         self.serverSock.listen(1)
-        clientSock, clientInfo = self.serverSock.accept()
+        self.clientSock, clientInfo = self.serverSock.accept()
         self.Connected = True
 
         connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(BT_ON, NOTHING)
@@ -57,13 +80,13 @@ class btThread(threading.Thread):
 
         while rdata != BT_OFF :
             try:
-                rdata = clientSock.recv(1024).decode("utf-8") # convert b_string to string
+                rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
                 msgQueue.putMsg(rdata)
                 logging.info("got message %s"%rdata)
             except:
                 logging.warning("cannot receive data")
                 break
-
+        self.clientSock.close()
         self.serverSock.close()
         self.Connected = False
 
