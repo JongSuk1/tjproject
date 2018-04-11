@@ -16,8 +16,8 @@ def store_img(folder, img_name, frame):
 
 def setup():
     capture = cv2.VideoCapture(0)
-    logging.info('image width %d' % capture.get(3)  )
-    logging.info('image height %d' % capture.get(4) )
+    logger.debug('image width %d' % capture.get(3)  )
+    logger.debug('image height %d' % capture.get(4) )
       
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -57,7 +57,7 @@ class camThread(threading.Thread):
 
         self.cap.release()
         cv2.destroyAllWindows() 
-        logging.info('camera closed')
+        logger.debug('camera closed')
 
     def capture(self):
         folder, img_name = make_name()
@@ -74,5 +74,3 @@ class camThread(threading.Thread):
         self.period = int(period) * 10
         self.clock = 0
 
-
-        

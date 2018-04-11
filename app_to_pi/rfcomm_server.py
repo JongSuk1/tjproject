@@ -59,9 +59,9 @@ class btThread(threading.Thread):
             try:
                 rdata = clientSock.recv(1024).decode("utf-8") # convert b_string to string
                 msgQueue.putMsg(rdata)
-                logging.info("got message %s"%rdata)
+                logger.info("got message %s"%rdata)
             except:
-                logging.warning("cannot receive data")
+                logger.warning("cannot receive data")
                 break
 
         self.serverSock.close()

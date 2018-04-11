@@ -6,6 +6,7 @@ import time
 from USB_camera.take_picture import *
 from USB_camera.take_video import *
 from app_to_pi.rfcomm_server import *
+from switch.switch import *
 import sys
 import msgQueue
 import play_sound.music as music
@@ -39,16 +40,25 @@ def close_Thread(thr,thList):
 
 
 def controller():
+    thList = []
+
     global camTh
     global videoTh
+    global switchTh
+
     btTh = btThread()
     btTh.start()
+
+    switchTh = switchThread()
+    switchTh.start()
+    thList.append(switchTh)
+
     camTh = camThread()
     videoTh = videoThread()
     camCheck = False
     msg = None
 
-    thList = []
+
 
     while (True):
         logger.debug('1')
