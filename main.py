@@ -60,7 +60,6 @@ def controller():
     camTh = camThread()
     videoTh = videoThread()
     camCheck = False
-    msg = None
 
 
     while (True):
@@ -91,6 +90,7 @@ def controller():
                     videoTh.capture()
                 else:
                     capture()
+
 
             elif msg == CAM_PERIOD:
                 if videoTh.is_running():
@@ -140,11 +140,24 @@ def controller():
                 for thread in thList:
                     close_Thread(thread, thList)
                 soundTh.join()
+
                 logger.info('BT connection released\n')
 
 
                 btTh = btThread()
                 btTh.start()
+                switchTh = switchThread()
+                while switchTh.video_state():
+                    logger.warning('release video switch')
+                    time.sleep(3)
+
+                switchTh.start()
+                thList.append(switchTh)
+
+                camTh = camThread()
+                videoTh = videoThread()
+                camCheck = False
+
 
             else:
                 # raise error and logging
