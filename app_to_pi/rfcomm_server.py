@@ -2,6 +2,7 @@ import bluetooth
 import threading
 import serial
 import sys
+import traceback
 import subprocess
 import re
 import os
@@ -10,6 +11,7 @@ sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
 from constants import *
 import logging
+import time
 
 logger = logging.getLogger()
 
@@ -28,6 +30,7 @@ class btThread(threading.Thread):
         self.port = 1
         self.Connected = False
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        self.clientSock = None
 
     def __del__(self):
         self.serverSock.close()
@@ -48,27 +51,30 @@ class btThread(threading.Thread):
     def run(self):
         self.serverSock.bind((self.address, self.port))
         self.serverSock.listen(1)
-        clientSock, clientInfo = self.serverSock.accept()
+        self.clientSock, clientInfo = self.serverSock.accept()
         self.Connected = True
 
         connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(BT_ON, NOTHING)
         msgQueue.putMsg(connectedMsg)
         rdata = None
 
-        while rdata != BT_OFF :
+        while rdata != BT_OFF:
             try:
-                rdata = clientSock.recv(1024).decode("utf-8") # convert b_string to string
+                rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
                 msgQueue.putMsg(rdata)
-                logger.info("got message %s"%rdata)
-            except:
-                logger.warning("cannot receive data")
-                break
 
+            except Exception as e:
+                #logger.warning("{}".format(str(e)))
+                #logger.warning("{}".format(traceback.format_exc()))
+                #logger.warning("cannot receive data")
+                break
+            time.sleep(0.1)
+        self.clientSock.close()
         self.serverSock.close()
         self.Connected = False
 
-        disconnectedMsg =  '{"msg" : "%s", "value" : "%s"}' %(BT_OFF, NOTHING)
-        msgQueue.putMsg(disconnectedMsg)
+        #disconnectedMsg =  '{"msg" : "%s", "value" : "%s"}' %(BT_OFF, NOTHING)
+        #msgQueue.putMsg(disconnectedMsg)
 
 
 

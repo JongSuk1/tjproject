@@ -7,6 +7,8 @@ logger = logging.getLogger()
 
 def putMsg(Msg):
     msgQ.put(Msg)
+    logger.info("got message %s" % Msg)
+
 
 def getMsg():
     if not msgQ.empty():                                                                                                                                  

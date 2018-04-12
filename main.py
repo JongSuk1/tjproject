@@ -50,6 +50,10 @@ def controller():
     btTh.start()
 
     switchTh = switchThread()
+    while switchTh.video_state():
+        logger.warning('release video switch')
+        time.sleep(3)
+
     switchTh.start()
     thList.append(switchTh)
 
@@ -57,7 +61,6 @@ def controller():
     videoTh = videoThread()
     camCheck = False
     msg = None
-
 
 
     while (True):
@@ -69,7 +72,7 @@ def controller():
             
             if msg == BT_ON:
                 music.play('BLE_con.mp3')
-                logger.info("bluetooth connetion successful")
+                #logger.info("bluetooth connetion successful")
                 
             elif msg == CAM_ON:
                 if camTh.is_running():
@@ -132,7 +135,16 @@ def controller():
                     thList.append(camTh)
 
             elif msg == BT_OFF:
-                break
+
+                soundTh = music.play('BLE_uncon.mp3')
+                for thread in thList:
+                    close_Thread(thread, thList)
+                soundTh.join()
+                logger.info('BT connection released\n')
+
+
+                btTh = btThread()
+                btTh.start()
 
             else:
                 # raise error and logging
@@ -140,10 +152,7 @@ def controller():
 
         time.sleep(1)
 
-    soundTh = music.play('BLE_uncon.mp3')
-    for thread in thList:
-        close_Thread(thread, thList)
-    soundTh.join()
+
 
 if __name__ == '__main__':
     set_log()
