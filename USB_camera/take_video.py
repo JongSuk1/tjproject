@@ -5,6 +5,9 @@ import datetime
 import threading
 import time
 import logging
+import sys
+sys.path.insert(0, '/home/pi/tjproject/play_sound')
+import music
 
 logger = logging.getLogger()
 
@@ -49,6 +52,7 @@ class videoThread(threading.Thread):
 
     def capture(self):
         img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
+        music.play('shutter.mp3')
         store_img("myimage", img_name, self.frame)
 
     def quit(self):

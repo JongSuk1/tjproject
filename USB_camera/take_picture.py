@@ -5,6 +5,10 @@ import datetime
 import threading
 import time
 import logging
+import sys
+sys.path.insert(0, '/home/pi/tjproject/play_sound')
+import music
+
 
 logger = logging.getLogger()
 
@@ -26,6 +30,7 @@ def setup():
 def capture():
     cap = cv2.VideoCapture(0)
     ret, frame = cap.read()
+    music.play('shutter.mp3')
     folder, img_name = make_name()
     store_img("myimage", img_name, frame)
 
@@ -62,6 +67,7 @@ class camThread(threading.Thread):
     def capture(self):
         folder, img_name = make_name()
         ret, self.frame = self.cap.read()
+        music.play('shutter.mp3')
         store_img("myimage", img_name, self.frame)
        
     def quit(self):

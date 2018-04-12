@@ -72,13 +72,16 @@ def controller():
                 logger.info("bluetooth connetion successful")
                 
             elif msg == CAM_ON:
+                if camTh.is_running():
+                    logger.error('Open camera Thread is already exist')
+                    continue
+
                 camTh = camThread()
                 camTh.start()
                 thList.append(camTh)
                 camCheck = True
                 
             elif msg == CAM_CAPTURE:
-                music.play('shutter.mp3')
                 if camTh.is_running():
                     camTh.capture()
                 elif videoTh.is_running():
@@ -88,25 +91,40 @@ def controller():
 
             elif msg == CAM_PERIOD:
                 if videoTh.is_running():
-                    logger.error('cannot control period while timelapse on')
+                    logger.error('Cannot control period while timelapse on')
+                    continue
+
                 if not camTh.is_running():
-                    logger.error('cannot control period without camThread')
+                    logger.error('Cannot control period without camThread')
+                    continue
 
                 camTh.set_period(value)
 
             elif msg == CAM_QUIT:
+                if not camTh.is_running():
+                    logger.error('There are no open camera Thread')
+                    continue
+
                 close_Thread(camTh,thList)
                 camCheck = False
                 
             elif msg == TIMELAPSE_ON:
-                music.play('video_start.mp3')
                 if camTh.is_running():
                     close_Thread(camTh,thList)
+                if videoTh.is_running():
+                    logger.error('Open videoThread is already exist')
+                    continue
+
                 videoTh = videoThread()
+                music.play('video_start.mp3')
                 videoTh.start()
                 thList.append(videoTh)
                 
             elif msg == TIMELAPSE_OFF:
+                if not videoTh.is_running():
+                    logger.error('There are no open video Thread')
+                    continue
+
                 close_Thread(videoTh,thList)
                 if camCheck == True:
                     camTh = camThread()
