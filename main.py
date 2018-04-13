@@ -38,6 +38,16 @@ def close_Thread(thr,thList):
     except:
         logger.error('thread is not in threadlist')
 
+def switch_init(thList):
+    switchTh = switchThread()
+    while switchTh.video_state():
+        logger.warning('release video switch')
+        music.play('Free_switch.mp3')
+        time.sleep(5)
+
+    switchTh.start()
+    thList.append(switchTh)
+    return switchTh
 
 def controller():
     thList = []
@@ -49,19 +59,13 @@ def controller():
     btTh = btThread()
     btTh.start()
 
-    switchTh = switchThread()
-    while switchTh.video_state():
-        logger.warning('release video switch')
-        time.sleep(3)
-
-    switchTh.start()
-    thList.append(switchTh)
-
+    switchTh=switch_init(thList)
     camTh = camThread()
     videoTh = videoThread()
     camCheck = False
 
 
+    music.play('setup.mp3')
     while (True):
         logger.debug('1')
         if not msgQueue.isEmpty():
@@ -143,21 +147,14 @@ def controller():
 
                 logger.info('BT connection released\n')
 
-
+                # reset
                 btTh = btThread()
                 btTh.start()
-                switchTh = switchThread()
-                while switchTh.video_state():
-                    logger.warning('release video switch')
-                    time.sleep(3)
 
-                switchTh.start()
-                thList.append(switchTh)
-
+                switchTh = switch_init(thList)
                 camTh = camThread()
                 videoTh = videoThread()
                 camCheck = False
-
 
             else:
                 # raise error and logging

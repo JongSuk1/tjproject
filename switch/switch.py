@@ -44,6 +44,7 @@ class switchThread(threading.Thread):
 
             time.sleep(0.1)
             prev = video_click
+        GPIO.cleanup()
 
     def video_state(self):
         return GPIO.input(23)
