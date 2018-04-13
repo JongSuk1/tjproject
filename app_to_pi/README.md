@@ -1,1 +1,0 @@
-This program copys data from /dev/rfcomm0 to STDIN.
