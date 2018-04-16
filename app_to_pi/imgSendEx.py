@@ -11,7 +11,7 @@ import msgQueue
 from constants import *
 import cv2
 import logging
-
+import time
 logger = logging.getLogger()
 
 def get_baddr():
@@ -59,12 +59,24 @@ class btThread(threading.Thread):
         capturedImageList.sort()
 
         for images in capturedImageList:
-            img = cv2.imread(images, cv2.IMREAD_COLOR)
+            img = cv2.imread(CAPTURED_IMAGE_PATH+images, cv2.IMREAD_COLOR)
+            print('%s %s\n'%(CAPTURED_IMAGE_PATH,images))
 # resize
-            cv2.resize(img, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
-            b = cv2.imencode('.jpg', img).tostring()
-            self.clientSock.send(b)
-            logger.info('%s was sent' % images)
+#           cv2.resize(img, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
+            tf,encodedImgByte = cv2.imencode('.jpg', img)
+            lenImgByte = len(encodedImgByte)
+#            print(tf)
+#            print(encodedImgByte)
+            if tf:
+                print(len(encodedImgByte))
+                self.clientSock.send(str.encode(images))
+                time.sleep(1)
+                self.clientSock.send(encodedImgByte)
+                time.sleep(1)
+                self.clientSock.send(str.encode('end of image'))
+                time.sleep(1)
+            print('%s was sent' % (CAPTURED_IMAGE_PATH+images))
+            
         return True
         
 
