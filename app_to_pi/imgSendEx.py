@@ -60,19 +60,29 @@ class btThread(threading.Thread):
         capturedImageList.sort()
 
         for images in capturedImageList:
-            img = cv2.imread(const.CAPTURED_IMAGE_PATH+images, cv2.IMREAD_COLOR)
-            print('%s %s\n'%(const.CAPTURED_IMAGE_PATH,images))
+            with open('const.CAPTURED_IMAGE_PATH+images', 'rb') as imageFile:
+                f = imageFile.read()
+                b = bytearray(f)
+            #img = cv2.imread(const.CAPTURED_IMAGE_PATH+images, cv2.IMREAD_COLOR)
+            #print('%s %s\n'%(const.CAPTURED_IMAGE_PATH,images))
 
-            tf,encodedImgByte = cv2.imencode('.jpg', img)
-            lenImgByte = len(encodedImgByte)
-            if tf:
-                print(len(encodedImgByte))
-                self.clientSock.send(str.encode(images))
-                time.sleep(1)
-                self.clientSock.send(encodedImgByte)
-                time.sleep(1)
-                self.clientSock.send(str.encode('end of image'))
-                time.sleep(1)
+            #tf,encodedImgByte = cv2.imencode('.jpg', img)
+            #lenImgByte = len(encodedImgByte)
+            #if tf:
+#                print(len(encodedImgByte))
+#                self.clientSock.send(str.encode(images))
+#                time.sleep(1)
+ #               self.clientSock.send(encodedImgByte)
+#                time.sleep(1)
+#                self.clientSock.send(str.encode('end of image'))
+#                time.sleep(1)
+
+            self.clientSock.send(len(images).to_bytes(4, byteorder='big'))
+            self.clientSock.send(str.encode(images))
+
+            self.clientSock.send(len(b).to_bytes(4,byteorder='big'))
+            self.clientSock.send(bytes(b))
+
             print('%s was sent' % (const.CAPTURED_IMAGE_PATH+images))
             
         return True
