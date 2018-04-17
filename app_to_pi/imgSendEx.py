@@ -8,10 +8,11 @@ import os
 sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
-from constants import *
+import constants as const
 import cv2
 import logging
 import time
+
 logger = logging.getLogger()
 
 def get_baddr():
@@ -51,22 +52,19 @@ class btThread(threading.Thread):
         if not self.isConnected():
             logger.error('bt is not connected')
             return False
-        if not os.path.isdir(CAPTURED_IMAGE_PATH):
+        if not os.path.isdir(const.CAPTURED_IMAGE_PATH):
             logger.error('cannot find \'myimage\' folder')
             return False
         
-        capturedImageList = os.listdir(CAPTURED_IMAGE_PATH)
+        capturedImageList = os.listdir(const.CAPTURED_IMAGE_PATH)
         capturedImageList.sort()
 
         for images in capturedImageList:
-            img = cv2.imread(CAPTURED_IMAGE_PATH+images, cv2.IMREAD_COLOR)
-            print('%s %s\n'%(CAPTURED_IMAGE_PATH,images))
-# resize
-#           cv2.resize(img, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
+            img = cv2.imread(const.CAPTURED_IMAGE_PATH+images, cv2.IMREAD_COLOR)
+            print('%s %s\n'%(const.CAPTURED_IMAGE_PATH,images))
+
             tf,encodedImgByte = cv2.imencode('.jpg', img)
             lenImgByte = len(encodedImgByte)
-#            print(tf)
-#            print(encodedImgByte)
             if tf:
                 print(len(encodedImgByte))
                 self.clientSock.send(str.encode(images))
@@ -75,7 +73,7 @@ class btThread(threading.Thread):
                 time.sleep(1)
                 self.clientSock.send(str.encode('end of image'))
                 time.sleep(1)
-            print('%s was sent' % (CAPTURED_IMAGE_PATH+images))
+            print('%s was sent' % (const.CAPTURED_IMAGE_PATH+images))
             
         return True
         

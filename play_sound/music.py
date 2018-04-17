@@ -1,6 +1,9 @@
 from pygame import mixer
 import time
 import threading
+import sys
+sys.path.insert(0, '/home/pi/tjproject/constants')
+import constants as const
 
 class soundThread(threading.Thread):
     def __init__(self, sound):
@@ -9,7 +12,7 @@ class soundThread(threading.Thread):
         
     def run(self):
         mixer.init()
-        mixer.music.load('music/'+self.sound)
+        mixer.music.load(const.HOME_PATH+'music/'+self.sound)
         mixer.music.play()
         while mixer.music.get_busy():
             time.sleep(0.1)

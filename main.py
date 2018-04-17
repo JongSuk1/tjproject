@@ -10,7 +10,7 @@ from switch.switch import *
 import sys
 import msgQueue
 import play_sound.music as music
-from constants import *
+import constants as const
 import logging
 import logging.handlers
 
@@ -19,7 +19,7 @@ logger = logging.getLogger()
 def set_log():
     fomatter = logging.Formatter('[%(levelname)s|%(filename)s:%(lineno)s] %(message)s')
 
-    fileHandler = logging.FileHandler('tjproject.log')
+    fileHandler = logging.FileHandler(const.HOME_PATH+'tjproject.log')
     streamHandler = logging.StreamHandler()
 
     fileHandler.setFormatter(fomatter)
@@ -66,6 +66,7 @@ def controller():
 
 
     music.play('setup.mp3')
+    switch.off('all')
     while (True):
         logger.debug('1')
         if not msgQueue.isEmpty():
@@ -73,11 +74,11 @@ def controller():
             msg = msgDict["msg"]
             value = msgDict['value']
             
-            if msg == BT_ON:
+            if msg == const.BT_ON:
                 music.play('BLE_con.mp3')
                 #logger.info("bluetooth connetion successful")
                 
-            elif msg == CAM_ON:
+            elif msg == const.CAM_ON:
                 if camTh.is_running():
                     logger.error('Open camera Thread is already exist')
                     continue
@@ -87,16 +88,16 @@ def controller():
                 thList.append(camTh)
                 camCheck = True
                 
-            elif msg == CAM_CAPTURE:
+            elif msg == const.CAM_CAPTURE:
                 if camTh.is_running():
                     camTh.capture()
                 elif videoTh.is_running():
                     videoTh.capture()
                 else:
                     capture()
+                #btTh.startLoadingImage()
 
-
-            elif msg == CAM_PERIOD:
+            elif msg == const.CAM_PERIOD:
                 if videoTh.is_running():
                     logger.error('Cannot control period while timelapse on')
                     continue
@@ -107,7 +108,7 @@ def controller():
 
                 camTh.set_period(value)
 
-            elif msg == CAM_QUIT:
+            elif msg == const.CAM_QUIT:
                 if not camTh.is_running():
                     logger.error('There are no open camera Thread')
                     continue
@@ -115,7 +116,7 @@ def controller():
                 close_Thread(camTh,thList)
                 camCheck = False
                 
-            elif msg == TIMELAPSE_ON:
+            elif msg == const.TIMELAPSE_ON:
                 if camTh.is_running():
                     close_Thread(camTh,thList)
                 if videoTh.is_running():
@@ -127,7 +128,7 @@ def controller():
                 videoTh.start()
                 thList.append(videoTh)
                 
-            elif msg == TIMELAPSE_OFF:
+            elif msg == const.TIMELAPSE_OFF:
                 if not videoTh.is_running():
                     logger.error('There are no open video Thread')
                     continue
@@ -138,7 +139,7 @@ def controller():
                     camTh.start()
                     thList.append(camTh)
 
-            elif msg == BT_OFF:
+            elif msg == const.BT_OFF:
 
                 soundTh = music.play('BLE_uncon.mp3')
                 for thread in thList:
@@ -146,24 +147,18 @@ def controller():
                 soundTh.join()
 
                 logger.info('BT connection released\n')
-
+                break
                 # reset
-                btTh = btThread()
-                btTh.start()
+#                btTh = btThread()
+#                btTh.start()
 
-                switchTh = switch_init(thList)
-                camTh = camThread()
-                videoTh = videoThread()
-                camCheck = False
+#                switchTh = switch_init(thList)
+#                camTh = camThread()
+#                videoTh = videoThread()
+#                camCheck = False
 
-            elif msg == LD_IMAGE: #do something
-                if btTh.isConnected() :
-                    if not btTh.startLoadingImage() :
-                        logger.error('loading images failed')
-                        break
-                else :
-                    logger.error('bluetooth is not connected')
-                    break
+            elif msg == const.LD_IMAGE: #do something
+                btTh.startLoadingImage()
 
             else:
                 # raise error and logging

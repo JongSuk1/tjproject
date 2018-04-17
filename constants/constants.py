@@ -13,4 +13,5 @@ LD_IMAGE = '8'
 
 
 # path constants
+HOME_PATH = '/home/pi/tjproject/'
 CAPTURED_IMAGE_PATH = '/home/pi/tjproject/myimage/'

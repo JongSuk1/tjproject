@@ -9,12 +9,13 @@ import os
 sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
-from constants import *
+import constants as const
 import cv2
 import logging
 import time
 
 logger = logging.getLogger()
+
 
 def get_baddr():
     if not os.path.exists('hciconfig.txt'):
@@ -32,6 +33,7 @@ class btThread(threading.Thread):
         self.Connected = False
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.clientSock = None
+        self.eve = threading.Event()
 
     def __del__(self):
         self.serverSock.close()
@@ -53,34 +55,47 @@ class btThread(threading.Thread):
         if not self.isConnected():
             logger.error('bt is not connected')
             return False
-        if not os.path.isdir(CAPTURED_IMAGE_PATH):
+        if not os.path.isdir(const.CAPTURED_IMAGE_PATH):
             logger.error('cannot find \'myimage\' folder')
             return False
-        
-        capturedImageList = os.listdir(CAPTURED_IMAGE_PATH)
+
+        capturedImageList = os.listdir(const.CAPTURED_IMAGE_PATH)
         capturedImageList.sort()
 
+#        self.eve.clear()
+
         for images in capturedImageList:
-            img = cv2.imread(images, cv2.IMREAD_COLOR)
-# resize
-            cv2.resize(img, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
-            b = cv2.imencode('.jpg', img).tostring()
-            self.clientSock.send(b)
-            logger.info('%s was sent' % images)
-        return True
-        
+            img = cv2.imread(const.CAPTURED_IMAGE_PATH + images, cv2.IMREAD_COLOR)
+            logger.debug('%s %s' % (const.CAPTURED_IMAGE_PATH, images))
+
+            tf, encodedImgByte = cv2.imencode('.jpg', img)
+            # lenImgByte = len(encodedImgByte)
+            if tf:
+                print(len(encodedImgByte))
+                self.clientSock.send(str.encode(images))
+                time.sleep(1)
+                self.clientSock.send(encodedImgByte)
+                time.sleep(1)
+                self.clientSock.send(str.encode('end of image'))
+                time.sleep(1)
+            print('%s was sent' % (const.CAPTURED_IMAGE_PATH + images))
+
+#        self.eve.set()
+        return
 
     def run(self):
+#        self.eve.set()
         self.serverSock.bind((self.address, self.port))
         self.serverSock.listen(1)
         self.clientSock, clientInfo = self.serverSock.accept()
         self.Connected = True
 
-        connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(BT_ON, NOTHING)
+        connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(const.BT_ON, const.NOTHING)
         msgQueue.putMsg(connectedMsg)
         rdata = None
 
-        while rdata != BT_OFF:
+        while rdata != const.BT_OFF:
+#            self.eve.wait()
             try:
                 rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
                 msgQueue.putMsg(rdata)

@@ -6,9 +6,11 @@ import threading
 import time
 import logging
 import sys
-sys.path.insert(0, '/home/pi/tjproject/play_sound')
-import music
-
+sys.path.insert(0, '/home/pi/tjproject')
+import play_sound.music as music
+import switch.switch as switch
+sys.path.insert(0, '/home/pi/tjproject/constants')
+import constants as const
 
 logger = logging.getLogger()
 
@@ -31,12 +33,13 @@ def capture():
     cap = cv2.VideoCapture(0)
     ret, frame = cap.read()
     music.play('shutter.mp3')
+    switch.white_blink()
     folder, img_name = make_name()
-    store_img("myimage", img_name, frame)
+    store_img(const.CAPTURED_IMAGE_PATH, img_name, frame)
 
 def make_name():
     img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
-    folder = datetime.datetime.now().strftime('%y%m%d')
+    folder = const.HOME_PATH+datetime.datetime.now().strftime('%y%m%d')
     return folder, img_name
 
 
@@ -52,6 +55,7 @@ class camThread(threading.Thread):
     def run(self):
         self.set = True
         self.cap = setup()
+        switch.on('green')
         while(self.set):
             ret, self.frame = self.cap.read()
             time.sleep(0.1)
@@ -59,7 +63,7 @@ class camThread(threading.Thread):
             if self.clock % self.period == 0:
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
-
+        switch.off('green')
         self.cap.release()
         cv2.destroyAllWindows() 
         logger.debug('camera closed')
@@ -68,7 +72,8 @@ class camThread(threading.Thread):
         folder, img_name = make_name()
         ret, self.frame = self.cap.read()
         music.play('shutter.mp3')
-        store_img("myimage", img_name, self.frame)
+        switch.white_blink()
+        store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
        
     def quit(self):
         self.set = False
