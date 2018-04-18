@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MyBT.iml" filepath="$PROJECT_DIR$/MyBT.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/msgpack-0.6.11-javadoc/msgpack-0.6.11-javadoc.iml" filepath="$PROJECT_DIR$/msgpack-0.6.11-javadoc/msgpack-0.6.11-javadoc.iml" />
     </modules>
   </component>
 </project>
