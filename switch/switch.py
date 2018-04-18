@@ -21,10 +21,18 @@ def setup():
 
 setup()
 
-def white_blink():
-    GPIO.output(15,True)
+def blink(color):
+    if color == 'green':
+        gpio_num=14
+    elif color == 'red':
+        gpio_num=17
+    elif color == 'white':
+        gpio_num=15
+    else:
+        logger.error('wrong led color')
+    GPIO.output(gpio_num,True)
     time.sleep(0.2)
-    GPIO.output(15,False)
+    GPIO.output(gpio_num,False)
 
 def on(color):
     if color == 'green':

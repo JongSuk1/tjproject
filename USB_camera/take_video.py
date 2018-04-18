@@ -58,7 +58,7 @@ class videoThread(threading.Thread):
     def capture(self):
         img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
         music.play('shutter.mp3')
-        switch.white_blink()
+        switch.blink('white')
         store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
 
     def quit(self):

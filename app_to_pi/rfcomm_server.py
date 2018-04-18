@@ -34,6 +34,7 @@ class btThread(threading.Thread):
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.clientSock = None
         self.eve = threading.Event()
+        self.name_list=[]
 
     def __del__(self):
         self.serverSock.close()
@@ -62,26 +63,28 @@ class btThread(threading.Thread):
         capturedImageList = os.listdir(const.CAPTURED_IMAGE_PATH)
         capturedImageList.sort()
 
-#        self.eve.clear()
-
         for images in capturedImageList:
-            img = cv2.imread(const.CAPTURED_IMAGE_PATH + images, cv2.IMREAD_COLOR)
-            logger.debug('%s %s' % (const.CAPTURED_IMAGE_PATH, images))
+            if images in self.name_list:
+                continue
+            self.name_list.append(images)
 
-            tf, encodedImgByte = cv2.imencode('.jpg', img)
-            # lenImgByte = len(encodedImgByte)
-            if tf:
-                print(len(encodedImgByte))
-                self.clientSock.send(str.encode(images))
-                time.sleep(1)
-                self.clientSock.send(encodedImgByte)
-                time.sleep(1)
-                self.clientSock.send(str.encode('end of image'))
-                time.sleep(1)
+            with open(const.CAPTURED_IMAGE_PATH + images, 'rb') as imageFile:
+                f = imageFile.read()
+                b = bytearray(f)
+
+            self.clientSock.send(len(images).to_bytes(4, byteorder='big'))
+            self.clientSock.send(str.encode(images))
+
+            self.clientSock.send(len(b).to_bytes(4, byteorder='big'))
+            self.clientSock.send(bytes(b))
+            #time.sleep(0.1)
+
             print('%s was sent' % (const.CAPTURED_IMAGE_PATH + images))
 
-#        self.eve.set()
-        return
+
+        terminate_codon = bytes([0xFF, 0xFF, 0xFF, 0xFF])
+        self.clientSock.send(terminate_codon)
+        return True
 
     def run(self):
 #        self.eve.set()

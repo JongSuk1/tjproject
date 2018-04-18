@@ -21,19 +21,22 @@ def store_img(folder, img_name, frame):
 
 
 def setup():
-    capture = cv2.VideoCapture(0)
-    logger.debug('image width %d' % capture.get(3)  )
-    logger.debug('image height %d' % capture.get(4) )
-      
+    try:
+        capture = cv2.VideoCapture(0)
+        logger.debug('image width %d' % capture.get(3))
+        logger.debug('image height %d' % capture.get(4))
+    except Exception as e:
+        logger.error('camera is not connected')
+
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     return capture
 
 def capture():
-    cap = cv2.VideoCapture(0)
+    cap = setup()
     ret, frame = cap.read()
     music.play('shutter.mp3')
-    switch.white_blink()
+    switch.blink('white')
     folder, img_name = make_name()
     store_img(const.CAPTURED_IMAGE_PATH, img_name, frame)
 
@@ -72,7 +75,7 @@ class camThread(threading.Thread):
         folder, img_name = make_name()
         ret, self.frame = self.cap.read()
         music.play('shutter.mp3')
-        switch.white_blink()
+        switch.blink('white')
         store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
        
     def quit(self):
