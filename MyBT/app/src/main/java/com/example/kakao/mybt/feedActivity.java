@@ -9,12 +9,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-
 public class feedActivity extends AppCompatActivity {
 
     private Button sBack; // s for 'sub'
     private ListView sListView;
     private TextView sTextView;
+
+    private itemHolder s_itemHolder;
+    private ArrayList<item> slist_item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +25,8 @@ public class feedActivity extends AppCompatActivity {
 
 
         MyImageAdapter sImageAdapter;
-        ArrayList<list_item>slist_item = getIntent().getParcelableArrayListExtra("ImageList");
+        s_itemHolder = itemHolder.getInstance();
+        slist_item = s_itemHolder.getList_item();
 
         sTextView = (TextView) findViewById(R.id.msg_textview);
 

@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mImageView;
 
     // Image view settings
-    public ArrayList<list_item> mlist_item = new ArrayList<list_item>();
+    private itemHolder m_itemHolder;
     private MyImageAdapter myImageAdapter;
 
     // BT settings
@@ -149,7 +149,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Image setting
 
-        myImageAdapter = new MyImageAdapter(this, mlist_item);
+        m_itemHolder = itemHolder.getInstance();
+        myImageAdapter = new MyImageAdapter(this, m_itemHolder.getList_item());
 
         // Ask for location permission if not already allowed
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -211,8 +212,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 Intent feedIntent = new Intent(getApplicationContext(), feedActivity.class); // view.getContext() indicates MainActivity, this
-
-                feedIntent.putExtra("ImageList", mlist_item);
 
                 startActivity(feedIntent);
 
@@ -646,8 +645,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                    list_item newImgItem = new list_item(s_title, b_img);
-                    mlist_item.add(newImgItem);
+                    item newImgItem = new item(s_title, b_img);
+
+                    m_itemHolder = itemHolder.getInstance();
+                    m_itemHolder.append_item(newImgItem);
+
 
                     Log.d(TAG, "final image size : "+String.valueOf(imageIndex));
 

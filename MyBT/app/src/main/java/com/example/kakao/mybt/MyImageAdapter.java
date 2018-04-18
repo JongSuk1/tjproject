@@ -19,12 +19,12 @@ import java.util.ArrayList;
 public class MyImageAdapter extends BaseAdapter {
 
     Context context;
-    ArrayList<list_item> list_itemArrayList;
+    ArrayList<item> list_itemArrayList;
 
     ImageView capturedImageView;
     TextView title;
 
-    public MyImageAdapter(Context context, ArrayList<list_item> list_itemArrayList) {
+    public MyImageAdapter(Context context, ArrayList<item> list_itemArrayList) {
         this.context = context;
         this.list_itemArrayList = list_itemArrayList;
     }

@@ -8,30 +8,30 @@ import android.os.Parcelable;
  * Created by kakao on 2018. 4. 13..
  */
 
-public class list_item implements Parcelable {
+public class item implements Parcelable {
     private String title;
     private byte[] capturedImageByte=null;
 
-    public list_item(String title, byte[] capturedImage) {
+    public item(String title, byte[] capturedImage) {
         this.title = title;
         this.capturedImageByte = capturedImage;
     }
 
 
-    protected list_item(Parcel in) {
+    protected item(Parcel in) {
         title = in.readString();
         capturedImageByte = in.createByteArray();
     }
 
-    public static final Creator<list_item> CREATOR = new Creator<list_item>() {
+    public static final Creator<item> CREATOR = new Creator<item>() {
         @Override
-        public list_item createFromParcel(Parcel in) {
-            return new list_item(in);
+        public item createFromParcel(Parcel in) {
+            return new item(in);
         }
 
         @Override
-        public list_item[] newArray(int size) {
-            return new list_item[size];
+        public item[] newArray(int size) {
+            return new item[size];
         }
     };
 
@@ -56,3 +56,4 @@ public class list_item implements Parcelable {
         parcel.writeByteArray(capturedImageByte);
     }
 }
+
