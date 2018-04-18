@@ -21,12 +21,10 @@ def store_img(folder, img_name, frame):
 
 
 def setup():
-    try:
-        capture = cv2.VideoCapture(0)
-        logger.debug('image width %d' % capture.get(3))
-        logger.debug('image height %d' % capture.get(4))
-    except Exception as e:
-        logger.error('camera is not connected')
+
+    capture = cv2.VideoCapture(0)
+    logger.debug('image width %d' % capture.get(3))
+    logger.debug('image height %d' % capture.get(4))
 
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
