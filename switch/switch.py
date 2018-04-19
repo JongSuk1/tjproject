@@ -18,7 +18,7 @@ def setup():
     GPIO.setup(const.GREEN,GPIO.OUT)
     GPIO.setup(const.WHITE,GPIO.OUT)
     GPIO.setup(const.RED,GPIO.OUT)
-    GPIO.setup(const.YELLOW,GPIO.OUT)
+    GPIO.setup(const.BLUE,GPIO.OUT)
 
 setup()
 
@@ -36,7 +36,7 @@ def off(color):
         GPIO.output(const.GREEN, False)
         GPIO.output(const.WHITE, False)
         GPIO.output(const.RED, False)
-        GPIO.output(const.YELLOW, False)
+        GPIO.output(const.BLUE, False)
         return
     GPIO.output(color,False)
 

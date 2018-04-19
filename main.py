@@ -63,8 +63,7 @@ def controller():
     camTh = camThread()
     videoTh = videoThread()
     camCheck = False
-    switch.off('all')
-
+    switch.on(const.GREEN)
     music.play('setup.mp3')
 
     while (True):
@@ -172,8 +171,7 @@ def controller():
 
 
 if __name__ == '__main__':
-    switch.on(const.GREEN)
+    switch.off('all')
     set_log()
     controller()
-    switch.off(const.GREEN)
     logger.info('exit\n')

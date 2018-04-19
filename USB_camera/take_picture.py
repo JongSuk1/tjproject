@@ -59,7 +59,7 @@ class camThread(threading.Thread):
     def run(self):
         self.set = True
         self.cap = setup()
-        switch.on(const.YELLOW)
+        switch.on(const.BLUE)
 
         while(self.set):
             ret, self.frame = self.cap.read()
@@ -69,7 +69,7 @@ class camThread(threading.Thread):
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
 
-        switch.off(const.YELLOW)
+        switch.off(const.BLUE)
         self.cap.release()
         cv2.destroyAllWindows() 
         logger.debug('camera closed')
