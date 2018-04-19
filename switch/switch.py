@@ -13,57 +13,44 @@ logger = logging.getLogger()
 
 def setup():
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(23,GPIO.IN)
-    GPIO.setup(24,GPIO.IN)
-    GPIO.setup(14,GPIO.OUT)
-    GPIO.setup(15,GPIO.OUT)
-    GPIO.setup(17,GPIO.OUT)
+    GPIO.setup(const.VID_SWITCH,GPIO.IN)
+    GPIO.setup(const.CAP_SWITCH,GPIO.IN)
+    GPIO.setup(const.GREEN,GPIO.OUT)
+    GPIO.setup(const.WHITE,GPIO.OUT)
+    GPIO.setup(const.RED,GPIO.OUT)
+    GPIO.setup(const.YELLOW,GPIO.OUT)
 
 setup()
 
 def blink(color):
-    if color == 'green':
-        gpio_num=14
-    elif color == 'red':
-        gpio_num=17
-    elif color == 'white':
-        gpio_num=15
-    else:
-        logger.error('wrong led color')
-    GPIO.output(gpio_num,True)
+    GPIO.output(color,True)
     time.sleep(0.2)
-    GPIO.output(gpio_num,False)
+    GPIO.output(color,False)
 
 def on(color):
-    if color == 'green':
-        GPIO.output(14,True)
-    elif color == 'red':
-        GPIO.output(17,True)
-    else:
-        logger.error('wrong led color')
+    GPIO.output(color,True)
+
 
 def off(color):
-    if color == 'green':
-        GPIO.output(14,False)
-    elif color == 'red':
-        GPIO.output(17,False)
-    elif color == 'all':
-        GPIO.output(14, False)
-        GPIO.output(15, False)
-        GPIO.output(17, False)
-    else:
-        logger.error('wrong led color')
+    if color == 'all':
+        GPIO.output(const.GREEN, False)
+        GPIO.output(const.WHITE, False)
+        GPIO.output(const.RED, False)
+        GPIO.output(const.YELLOW, False)
+        return
+    GPIO.output(color,False)
 
 class switchThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.set = True
+        setup()
 
     def run(self):
-        prev = GPIO.input(23)
+        prev = GPIO.input(const.VID_SWITCH)
         while (self.set):
-            video_click = GPIO.input(23)
-            cap_click = GPIO.input(24)
+            video_click = GPIO.input(const.VID_SWITCH)
+            cap_click = GPIO.input(const.CAP_SWITCH)
             if cap_click:
                 cap_clickMsg = '{"msg" : "%s", "value" : "%s"}' % (const.CAM_CAPTURE, const.NOTHING)
                 msgQueue.putMsg(cap_clickMsg)
@@ -84,7 +71,7 @@ class switchThread(threading.Thread):
         GPIO.cleanup()
 
     def video_state(self):
-        return GPIO.input(23)
+        return GPIO.input(const.VID_SWITCH)
 
     def quit(self):
         self.set = False

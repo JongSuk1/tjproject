@@ -31,9 +31,13 @@ def make_name():
     return folder, video_name
 
 def store_img(folder, img_name, frame):
+    if frame == None:
+        switch.blink(const.RED)
+        return
     if not os.path.isdir(folder):
        os.mkdir(folder)
     cv2.imwrite(folder+'/'+img_name, frame)
+
 
 
 class videoThread(threading.Thread):
@@ -45,12 +49,15 @@ class videoThread(threading.Thread):
     def run(self):
         self.set = True
         capture, out = setup()
-        switch.on('red')
-        while (self.set):
+        switch.on(const.RED)
+        ret, self.frame = capture.read()
+
+        while (self.set and self.frame != None):
             ret, self.frame = capture.read()
             frame = cv2.flip(self.frame,1)
             out.write(frame)
-        switch.off('red')
+
+        switch.off(const.RED)
         capture.release()
         out.release()
         cv2.destroyAllWindows()
@@ -58,7 +65,7 @@ class videoThread(threading.Thread):
     def capture(self):
         img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
         music.play('shutter.mp3')
-        switch.blink('white')
+        switch.blink(const.WHITE)
         store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
 
     def quit(self):

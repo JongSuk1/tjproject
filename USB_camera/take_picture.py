@@ -15,6 +15,9 @@ import constants as const
 logger = logging.getLogger()
 
 def store_img(folder, img_name, frame):
+    if frame == None:
+        switch.blink(const.RED)
+        return
     if not os.path.isdir(folder):
        os.mkdir(folder)
     cv2.imwrite(folder+'/'+img_name, frame)
@@ -34,7 +37,7 @@ def capture():
     cap = setup()
     ret, frame = cap.read()
     music.play('shutter.mp3')
-    switch.blink('white')
+    switch.blink(const.WHITE)
     folder, img_name = make_name()
     store_img(const.CAPTURED_IMAGE_PATH, img_name, frame)
 
@@ -56,7 +59,8 @@ class camThread(threading.Thread):
     def run(self):
         self.set = True
         self.cap = setup()
-        switch.on('green')
+        switch.on(const.YELLOW)
+
         while(self.set):
             ret, self.frame = self.cap.read()
             time.sleep(0.1)
@@ -64,7 +68,8 @@ class camThread(threading.Thread):
             if self.clock % self.period == 0:
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
-        switch.off('green')
+
+        switch.off(const.YELLOW)
         self.cap.release()
         cv2.destroyAllWindows() 
         logger.debug('camera closed')
@@ -73,7 +78,7 @@ class camThread(threading.Thread):
         folder, img_name = make_name()
         ret, self.frame = self.cap.read()
         music.play('shutter.mp3')
-        switch.blink('white')
+        switch.blink(const.WHITE)
         store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
        
     def quit(self):

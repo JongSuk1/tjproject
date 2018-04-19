@@ -1,2 +1,0 @@
-configurations.maybeCreate("default")
-artifacts.add("default", file('msgpack-0.6.11-javadoc.jar'))

@@ -15,7 +15,7 @@ import logging
 import time
 
 logger = logging.getLogger()
-
+send_list=[]
 
 def get_baddr():
     if not os.path.exists('hciconfig.txt'):
@@ -24,6 +24,16 @@ def get_baddr():
     regex = re.compile("..:..:..:..:..:..")
     baddr = regex.search(hciInfo).group()
     return baddr
+
+def refresh_list():
+    f = open(const.HOME_PATH + 'send_imagelist.txt', 'r')
+    while True:
+        line=f.readline()
+        if not line:
+            break
+        x = line.split('\n')
+        send_list.append(x[0])
+
 
 class btThread(threading.Thread):
     def __init__(self):
@@ -34,7 +44,8 @@ class btThread(threading.Thread):
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.clientSock = None
         self.eve = threading.Event()
-        self.name_list=[]
+        file = open(const.HOME_PATH + 'send_imagelist.txt', 'a')
+        file.close()
 
     def __del__(self):
         self.serverSock.close()
@@ -57,16 +68,21 @@ class btThread(threading.Thread):
             logger.error('bt is not connected')
             return False
         if not os.path.isdir(const.CAPTURED_IMAGE_PATH):
-            logger.error('cannot find \'myimage\' folder')
-            return False
+            logger.info('captured image is not exist')
+            terminate_codon = bytes([0xFF, 0xFF, 0xFF, 0xFF])
+            self.clientSock.send(terminate_codon)
+            return
 
         capturedImageList = os.listdir(const.CAPTURED_IMAGE_PATH)
         capturedImageList.sort()
 
+        refresh_list()
+
+        file = open(const.HOME_PATH + 'send_imagelist.txt', 'a')
+
         for images in capturedImageList:
-            if images in self.name_list:
+            if images in send_list:
                 continue
-            self.name_list.append(images)
 
             with open(const.CAPTURED_IMAGE_PATH + images, 'rb') as imageFile:
                 f = imageFile.read()
@@ -81,6 +97,9 @@ class btThread(threading.Thread):
 
             print('%s was sent' % (const.CAPTURED_IMAGE_PATH + images))
 
+            file.write(images+'\n')
+
+        file.close()
 
         terminate_codon = bytes([0xFF, 0xFF, 0xFF, 0xFF])
         self.clientSock.send(terminate_codon)

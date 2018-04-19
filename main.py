@@ -63,10 +63,10 @@ def controller():
     camTh = camThread()
     videoTh = videoThread()
     camCheck = False
-
+    switch.off('all')
 
     music.play('setup.mp3')
-    switch.off('all')
+
     while (True):
         logger.debug('1')
         if not msgQueue.isEmpty():
@@ -147,15 +147,15 @@ def controller():
                 soundTh.join()
 
                 logger.info('BT connection released\n')
-                break
+                #break
                 # reset
-#                btTh = btThread()
-#                btTh.start()
+                btTh = btThread()
+                btTh.start()
 
-#                switchTh = switch_init(thList)
-#                camTh = camThread()
-#                videoTh = videoThread()
-#                camCheck = False
+                switchTh = switch_init(thList)
+                camTh = camThread()
+                videoTh = videoThread()
+                camCheck = False
 
             elif msg == const.LD_IMAGE: #do something
                 btTh.startLoadingImage()
@@ -169,7 +169,11 @@ def controller():
 
 
 
+
+
 if __name__ == '__main__':
+    switch.on(const.GREEN)
     set_log()
     controller()
+    switch.off(const.GREEN)
     logger.info('exit\n')
