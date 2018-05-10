@@ -6,6 +6,7 @@ import traceback
 import subprocess
 import re
 import os
+import select
 sys.path.insert(0, '/home/pi/tjproject/msgQueue')
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import msgQueue
@@ -110,6 +111,9 @@ class btThread(threading.Thread):
         self.serverSock.bind((self.address, self.port))
         self.serverSock.listen(1)
         self.clientSock, clientInfo = self.serverSock.accept()
+        regex = re.compile("..:..:..:..:..:..")
+        clientAaddr = regex.search(clientInfo).group()
+
         self.Connected = True
 
         connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(const.BT_ON, const.NOTHING)
@@ -119,8 +123,19 @@ class btThread(threading.Thread):
         while rdata != const.BT_OFF:
 #            self.eve.wait()
             try:
-                rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
-                msgQueue.putMsg(rdata)
+                proc = subprocess.Popen(['hcitool', 'con'], stdout=subprocess.PIPE)
+                hcitoolOutput = proc.stdout.read()
+                if not clientAddr in hcitoolOutput: # connection failed
+                    logger.warning('connection failed')
+                    rdata = const.BT_OFF
+
+                self.clientSock.setblocking(0)
+                ready = select.select([self.clientSock], [], [], 1) # settimeout for 1 sec
+                if ready[0]:
+                    rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
+                    msgQueue.putMsg(rdata)
+                else:
+                    logger.info('no data received')
             except Exception as e:
                 #logger.warning("{}".format(str(e)))
                 #logger.warning("{}".format(traceback.format_exc()))
