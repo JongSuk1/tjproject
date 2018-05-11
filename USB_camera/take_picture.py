@@ -8,7 +8,6 @@ import logging
 import sys
 sys.path.insert(0, '/home/pi/tjproject')
 import play_sound.music as music
-import switch.switch as switch
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import constants as const
 
@@ -16,7 +15,6 @@ logger = logging.getLogger()
 
 def store_img(folder, img_name, frame):
     if frame == None:
-        switch.blink(const.RED)
         return
     if not os.path.isdir(folder):
        os.mkdir(folder)
@@ -37,15 +35,12 @@ def capture():
     cap = setup()
 
     music.play('beep.mp3')
-    switch.blink(const.WHITE)
     time.sleep(0.3)
     music.play('beep.mp3')
-    switch.blink(const.WHITE)
     time.sleep(0.3)
 
     ret, frame = cap.read()
     music.play('shutter.mp3')
-    switch.blink(const.WHITE)
     folder, img_name = make_name()
     store_img(const.CAPTURED_IMAGE_PATH, img_name, frame)
 
@@ -67,7 +62,6 @@ class camThread(threading.Thread):
     def run(self):
         self.set = True
         self.cap = setup()
-        switch.on(const.BLUE)
 
         while(self.set):
             ret, self.frame = self.cap.read()
@@ -77,7 +71,6 @@ class camThread(threading.Thread):
                 folder, img_name = make_name()
                 store_img(folder, img_name, self.frame)
 
-        switch.off(const.BLUE)
         self.cap.release()
         cv2.destroyAllWindows() 
         logger.debug('camera closed')
@@ -86,7 +79,6 @@ class camThread(threading.Thread):
         folder, img_name = make_name()
         ret, self.frame = self.cap.read()
         music.play('shutter.mp3')
-        switch.blink(const.WHITE)
         store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
        
     def quit(self):

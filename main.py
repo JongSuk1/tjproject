@@ -6,7 +6,6 @@ import time
 from USB_camera.take_picture import *
 from USB_camera.take_video import *
 from app_to_pi.rfcomm_server import *
-from switch.switch import *
 import sys
 import msgQueue
 import play_sound.music as music
@@ -38,32 +37,19 @@ def close_Thread(thr,thList):
     except:
         logger.error('thread is not in threadlist')
 
-def switch_init(thList):
-    switchTh = switchThread()
-    while switchTh.video_state():
-        logger.warning('release video switch')
-        music.play('Free_switch.mp3')
-        time.sleep(5)
-
-    switchTh.start()
-    thList.append(switchTh)
-    return switchTh
 
 def controller():
     thList = []
 
     global camTh
     global videoTh
-    global switchTh
 
     btTh = btThread()
     btTh.start()
 
-    switchTh=switch_init(thList)
     camTh = camThread()
     videoTh = videoThread()
     camCheck = False
-    switch.on(const.GREEN)
     music.play('setup.mp3')
 
     while (True):
@@ -149,7 +135,6 @@ def controller():
                 btTh = btThread()
                 btTh.start()
 
-                switchTh = switch_init(thList)
                 camTh = camThread()
                 videoTh = videoThread()
                 camCheck = False
@@ -170,7 +155,6 @@ def controller():
 
 
 if __name__ == '__main__':
-    switch.off('all')
     set_log()
     controller()
     logger.info('exit\n')
