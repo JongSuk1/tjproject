@@ -75,7 +75,6 @@ def controller():
             
             if msg == const.BT_ON:
                 music.play('BLE_con.mp3')
-                #logger.info("bluetooth connetion successful")
                 
             elif msg == const.CAM_ON:
                 if camTh.is_running():
@@ -94,7 +93,6 @@ def controller():
                     videoTh.capture()
                 else:
                     capture()
-                #btTh.startLoadingImage()
 
             elif msg == const.CAM_PERIOD:
                 if videoTh.is_running():
@@ -146,7 +144,7 @@ def controller():
                 soundTh.join()
 
                 logger.info('BT connection released\n')
-                #break
+
                 # reset
                 btTh = btThread()
                 btTh.start()
@@ -157,7 +155,8 @@ def controller():
                 camCheck = False
 
             elif msg == const.LD_IMAGE: #do something
-                btTh.startLoadingImage()
+
+                btTh.setLD()
 
             else:
                 # raise error and logging

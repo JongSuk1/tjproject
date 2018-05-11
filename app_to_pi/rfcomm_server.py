@@ -42,6 +42,7 @@ class btThread(threading.Thread):
         self.address = get_baddr()
         self.port = 1
         self.Connected = False
+        self.Load = False
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.clientSock = None
         self.eve = threading.Event()
@@ -63,6 +64,9 @@ class btThread(threading.Thread):
 
     def getMessage(self):
         return self.message
+
+    def setLD(self):
+        self.Load=True
 
     def startLoadingImage(self):
         if not self.isConnected():
@@ -94,56 +98,60 @@ class btThread(threading.Thread):
 
             self.clientSock.send(len(b).to_bytes(4, byteorder='big'))
             self.clientSock.send(bytes(b))
-            #time.sleep(0.1)
 
             print('%s was sent' % (const.CAPTURED_IMAGE_PATH + images))
 
             file.write(images+'\n')
 
         file.close()
-
         terminate_codon = bytes([0xFF, 0xFF, 0xFF, 0xFF])
         self.clientSock.send(terminate_codon)
         return True
 
     def run(self):
-#        self.eve.set()
         self.serverSock.bind((self.address, self.port))
         self.serverSock.listen(1)
         self.clientSock, clientInfo = self.serverSock.accept()
-        regex = re.compile("..:..:..:..:..:..")
-        clientAaddr = regex.search(clientInfo).group()
 
         self.Connected = True
 
         connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(const.BT_ON, const.NOTHING)
         msgQueue.putMsg(connectedMsg)
-        print(self.clientSock)
-        rdata = None
+        rdata = const.BT_ON
 
         while rdata != const.BT_OFF:
-            print(self.clientSock)
-#            self.eve.wait()
             try:
                 proc = subprocess.Popen(['hcitool', 'con'], stdout=subprocess.PIPE)
-                hcitoolOutput = proc.stdout.read()
-                if not clientAddr in hcitoolOutput: # connection failed
+
+                hcitoolOutput = proc.stdout.read().decode("utf-8")
+                regex = re.compile("..:..:..:..:..:..")
+                paddr = regex.search(hcitoolOutput).group()
+                print(paddr)
+
+                if not paddr in hcitoolOutput: # connection failed
                     logger.warning('connection failed')
                     rdata = const.BT_OFF
 
-                self.clientSock.setblocking(0)
+
+                if self.Load:
+                    self.startLoadingImage()
+                    self.Load = False
+
+                #self.clientSock.setblocking(0)
                 ready = select.select([self.clientSock], [], [], 1) # settimeout for 1 sec
                 if ready[0]:
                     rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
                     msgQueue.putMsg(rdata)
                 else:
                     logger.info('no data received')
+
             except Exception as e:
-                #logger.warning("{}".format(str(e)))
-                #logger.warning("{}".format(traceback.format_exc()))
-                #logger.warning("cannot receive data")
+                logger.warning("{}".format(str(e)))
+                logger.warning("{}".format(traceback.format_exc()))
+                logger.warning("cannot receive data")
                 break
             time.sleep(1)
+
         self.clientSock.close()
         self.serverSock.close()
         self.Connected = False
