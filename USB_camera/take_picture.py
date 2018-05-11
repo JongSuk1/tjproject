@@ -35,6 +35,14 @@ def setup():
 
 def capture():
     cap = setup()
+
+    music.play('beep.mp3')
+    switch.blink(const.WHITE)
+    time.sleep(0.3)
+    music.play('beep.mp3')
+    switch.blink(const.WHITE)
+    time.sleep(0.3)
+
     ret, frame = cap.read()
     music.play('shutter.mp3')
     switch.blink(const.WHITE)

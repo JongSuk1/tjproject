@@ -114,9 +114,11 @@ class btThread(threading.Thread):
 
         connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(const.BT_ON, const.NOTHING)
         msgQueue.putMsg(connectedMsg)
+        print(self.clientSock)
         rdata = None
 
         while rdata != const.BT_OFF:
+            print(self.clientSock)
 #            self.eve.wait()
             try:
                 rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
@@ -126,7 +128,7 @@ class btThread(threading.Thread):
                 #logger.warning("{}".format(traceback.format_exc()))
                 #logger.warning("cannot receive data")
                 break
-            time.sleep(0.1)
+            time.sleep(1)
         self.clientSock.close()
         self.serverSock.close()
         self.Connected = False
