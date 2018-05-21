@@ -6,7 +6,15 @@ msgQ = queue.Queue()
 logger = logging.getLogger()
 
 def putMsg(Msg):
-    msgQ.put(Msg)
+    Msg_array = Msg.split('}{')
+    for message in Msg_array:
+        if not message.startswith('{'):
+            message = '{' + message
+
+        if not message.endswith('}'):
+            message = message + '}'
+
+        msgQ.put(message)
     logger.info("got message %s" % Msg)
 
 

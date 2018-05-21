@@ -14,6 +14,7 @@ import constants as const
 import cv2
 import logging
 import time
+import datetime
 
 logger = logging.getLogger()
 send_list=[]
@@ -26,15 +27,6 @@ def get_baddr():
     baddr = regex.search(hciInfo).group()
     return baddr
 
-def refresh_list():
-    f = open(const.HOME_PATH + 'send_imagelist.txt', 'r')
-    while True:
-        line=f.readline()
-        if not line:
-            break
-        x = line.split('\n')
-        send_list.append(x[0])
-
 
 class btThread(threading.Thread):
     def __init__(self):
@@ -42,10 +34,12 @@ class btThread(threading.Thread):
         self.address = get_baddr()
         self.port = 1
         self.Connected = False
-        self.Load = False
+        self.CaptureLoad = False
+        self.PLLoad = False
         self.serverSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.clientSock = None
         self.eve = threading.Event()
+        self.terminate_codon = bytes([0xFF, 0xFF, 0xFF, 0xFF])
         file = open(const.HOME_PATH + 'send_imagelist.txt', 'a')
         file.close()
 
@@ -65,29 +59,26 @@ class btThread(threading.Thread):
     def getMessage(self):
         return self.message
 
-    def setLD(self):
-        self.Load=True
+    def setCaptureLoad(self):
+        self.CaptureLoad=True
 
-    def startLoadingImage(self):
+    def setPLLoad(self):
+        self.PLLoad = True
+
+    def LoadCaptureImage(self):
         if not self.isConnected():
             logger.error('bt is not connected')
             return False
         if not os.path.isdir(const.CAPTURED_IMAGE_PATH):
             logger.info('captured image is not exist')
-            terminate_codon = bytes([0xFF, 0xFF, 0xFF, 0xFF])
-            self.clientSock.send(terminate_codon)
+            self.clientSock.send(self.terminate_codon)
             return
 
         capturedImageList = os.listdir(const.CAPTURED_IMAGE_PATH)
         capturedImageList.sort()
 
-        refresh_list()
-
-        file = open(const.HOME_PATH + 'send_imagelist.txt', 'a')
-
-        for images in capturedImageList:
-            if images in send_list:
-                continue
+        try:
+            images = capturedImageList[-1]
 
             with open(const.CAPTURED_IMAGE_PATH + images, 'rb') as imageFile:
                 f = imageFile.read()
@@ -99,14 +90,61 @@ class btThread(threading.Thread):
             self.clientSock.send(len(b).to_bytes(4, byteorder='big'))
             self.clientSock.send(bytes(b))
 
-            print('%s was sent' % (const.CAPTURED_IMAGE_PATH + images))
+            logger.info('%s was sent' % (const.CAPTURED_IMAGE_PATH + images))
 
-            file.write(images+'\n')
 
-        file.close()
-        terminate_codon = bytes([0xFF, 0xFF, 0xFF, 0xFF])
-        self.clientSock.send(terminate_codon)
+
+        except:
+            self.clientSock.send(self.terminate_codon)
+            return
+
+        self.clientSock.send(self.terminate_codon)
         return True
+
+    def LoadPhotoLog(self):
+        count = 0
+        folder = const.HOME_PATH+datetime.datetime.now().strftime('%y%m%d')+'/'
+        PhotoLogList = os.listdir(folder)
+        PhotoLogList.sort(reverse=True)
+
+        if not os.path.isdir(folder):
+            logger.info('PhotoLog is not exist')
+            self.clientSock.send(self.terminate_codon)
+            return
+        try:
+            for images in PhotoLogList:
+                if os.path.isdir(images):
+                    continue
+
+                if count >= 5:
+                    break
+
+                if images in send_list:
+                    count += 1
+                    continue
+
+                with open(folder + images, 'rb') as imageFile:
+                    f = imageFile.read()
+                    b = bytearray(f)
+
+                self.clientSock.send(len(images).to_bytes(4, byteorder='big'))
+                self.clientSock.send(str.encode(images))
+
+                self.clientSock.send(len(b).to_bytes(4, byteorder='big'))
+                self.clientSock.send(bytes(b))
+
+                logger.info('%s was sent' % (folder + images))
+                send_list.append(images)
+
+                count += 1
+
+
+        except:
+            self.clientSock.send(self.terminate_codon)
+            return
+
+        self.clientSock.send(self.terminate_codon)
+        return
 
     def run(self):
         self.serverSock.bind((self.address, self.port))
@@ -115,29 +153,26 @@ class btThread(threading.Thread):
 
         self.Connected = True
 
-        connectedMsg = '{"msg" : "%s", "value" : "%s"}' %(const.BT_ON, const.NOTHING)
-        msgQueue.putMsg(connectedMsg)
-        rdata = const.BT_ON
-
-        while rdata != const.BT_OFF:
+        while self.Connected:
             try:
                 proc = subprocess.Popen(['hcitool', 'con'], stdout=subprocess.PIPE)
 
                 hcitoolOutput = proc.stdout.read().decode("utf-8")
                 regex = re.compile("..:..:..:..:..:..")
                 paddr = regex.search(hcitoolOutput).group()
-                print(paddr)
 
                 if not paddr in hcitoolOutput: # connection failed
                     logger.warning('connection failed')
-                    rdata = const.BT_OFF
+                    self.Connected = False
 
+                if self.CaptureLoad:
+                    self.LoadCaptureImage()
+                    self.CaptureLoad = False
 
-                if self.Load:
-                    self.startLoadingImage()
-                    self.Load = False
+                if self.PLLoad:
+                    self.LoadPhotoLog()
+                    self.PLLoad = False
 
-                #self.clientSock.setblocking(0)
                 ready = select.select([self.clientSock], [], [], 1) # settimeout for 1 sec
                 if ready[0]:
                     rdata = self.clientSock.recv(1024).decode("utf-8") # convert b_string to string
@@ -146,10 +181,15 @@ class btThread(threading.Thread):
                     logger.info('no data received')
 
             except Exception as e:
-                logger.warning("{}".format(str(e)))
-                logger.warning("{}".format(traceback.format_exc()))
-                logger.warning("cannot receive data")
-                break
+                logger.info("{}".format(str(e)))
+                logger.info("{}".format(traceback.format_exc()))
+                logger.info("cannot receive data")
+
+                disconnectedMsg = '{"msg" : "%s", "value" : "%s"}' % (const.BT, const.OFF)
+                msgQueue.putMsg(disconnectedMsg)
+
+                self.Connected = False
+
             time.sleep(1)
 
         self.clientSock.close()

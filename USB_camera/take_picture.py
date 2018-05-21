@@ -10,6 +10,8 @@ sys.path.insert(0, '/home/pi/tjproject')
 import play_sound.music as music
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import constants as const
+sys.path.insert(0, '/home/pi/tjproject/msgQueue')
+import msgQueue
 
 logger = logging.getLogger()
 
@@ -35,14 +37,18 @@ def capture():
     cap = setup()
 
     music.play('beep.mp3')
-    time.sleep(0.3)
+    time.sleep(0.2)
     music.play('beep.mp3')
-    time.sleep(0.3)
+    time.sleep(0.2)
 
     ret, frame = cap.read()
     music.play('shutter.mp3')
     folder, img_name = make_name()
     store_img(const.CAPTURED_IMAGE_PATH, img_name, frame)
+
+    LDmsg = '{"msg" : "%s", "value" : "%s"}' % (const.LD_IMAGE, const.CAM_CAPTURE)
+    msgQueue.putMsg(LDmsg)
+
 
 def make_name():
     img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
@@ -51,12 +57,12 @@ def make_name():
 
 
 class camThread(threading.Thread):
-    def __init__(self):
+    def __init__(self,value):
         threading.Thread.__init__(self)
         self.frame = None
         self.set = False
         self.clock = 0
-        self.period = 50
+        self.period = int(value)* 10
         self.cap = None
 
     def run(self):
@@ -80,7 +86,10 @@ class camThread(threading.Thread):
         ret, self.frame = self.cap.read()
         music.play('shutter.mp3')
         store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
-       
+
+        LDmsg = '{"msg" : "%s", "value" : "%s"}' % (const.LD_IMAGE, const.CAM_CAPTURE)
+        msgQueue.putMsg(LDmsg)
+
     def quit(self):
         self.set = False
 

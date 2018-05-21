@@ -10,6 +10,8 @@ sys.path.insert(0, '/home/pi/tjproject')
 import play_sound.music as music
 sys.path.insert(0, '/home/pi/tjproject/constants')
 import constants as const
+sys.path.insert(0, '/home/pi/tjproject/msgQueue')
+import msgQueue
 
 logger = logging.getLogger()
 
@@ -62,6 +64,9 @@ class videoThread(threading.Thread):
         img_name = datetime.datetime.now().strftime('%y%m%d-%H%M%S%f')+'.jpg'
         music.play('shutter.mp3')
         store_img(const.CAPTURED_IMAGE_PATH, img_name, self.frame)
+
+        LDmsg = '{"msg" : "%s", "value" : "%s"}' % (const.LD_IMAGE, const.CAM_CAPTURE)
+        msgQueue.putMsg(LDmsg)
 
     def quit(self):
         self.set = False
