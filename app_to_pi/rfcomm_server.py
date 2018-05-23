@@ -96,9 +96,12 @@ class btThread(threading.Thread):
 
         except:
             self.clientSock.send(self.terminate_codon)
+            self.clientSock.close()
+            self.serverSock.close()
             return
 
         self.clientSock.send(self.terminate_codon)
+        logger.info('image send finish')
         return True
 
     def LoadPhotoLog(self):
@@ -137,20 +140,27 @@ class btThread(threading.Thread):
                 send_list.append(images)
 
                 count += 1
-
+                break
 
         except:
             self.clientSock.send(self.terminate_codon)
+            self.clientSock.close()
+            self.serverSock.close()
             return
 
         self.clientSock.send(self.terminate_codon)
+        logger.info('image send finish')
+
         return
 
     def run(self):
         self.serverSock.bind((self.address, self.port))
         self.serverSock.listen(1)
-        self.clientSock, clientInfo = self.serverSock.accept()
-
+        try:
+            self.clientSock, clientInfo = self.serverSock.accept()
+        except:
+            self.serverSock.close()
+        #self.clientSock.setblocking(0)
         self.Connected = True
 
         while self.Connected:
@@ -184,7 +194,8 @@ class btThread(threading.Thread):
                 logger.info("{}".format(str(e)))
                 logger.info("{}".format(traceback.format_exc()))
                 logger.info("cannot receive data")
-
+                self.clientSock.close()
+                self.serverSock.close()
                 disconnectedMsg = '{"msg" : "%s", "value" : "%s"}' % (const.BT, const.OFF)
                 msgQueue.putMsg(disconnectedMsg)
 
